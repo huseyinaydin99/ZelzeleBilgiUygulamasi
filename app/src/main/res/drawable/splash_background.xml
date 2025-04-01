@@ -1,0 +1,3 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_bg_color"/> <!-- Renk: #FFFFFF veya tema rengi -->
+</layer-list>
