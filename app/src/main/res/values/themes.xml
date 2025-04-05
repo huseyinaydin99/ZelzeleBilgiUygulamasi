@@ -9,7 +9,7 @@
 
     <!-- Splash Screen Teması -->
     <style name="Theme.ZelzeleBilgiUygulaması.Splash" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowBackground">@drawable/splash_background2</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentTransitions">true</item>
     </style>
