@@ -7,4 +7,11 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorPrimaryLight">#C5CAE9</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!-- Deprem şiddeti renkleri -->
+    <color name="magnitude1">#4CAF50</color>  <!-- Yeşil -->
+    <color name="magnitude2">#8BC34A</color>  <!-- Açık Yeşil -->
+    <color name="magnitude3">#FFC107</color>  <!-- Sarı -->
+    <color name="magnitude4">#FF9800</color>  <!-- Turuncu -->
+    <color name="magnitude5">#F44336</color>  <!-- Kırmızı -->
 </resources>
