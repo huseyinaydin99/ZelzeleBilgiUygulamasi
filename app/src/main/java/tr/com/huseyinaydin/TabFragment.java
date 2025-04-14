@@ -2,7 +2,9 @@ package tr.com.huseyinaydin;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,31 +14,47 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import java.util.ArrayList;
-import java.util.List;
 
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import tr.com.huseyinaydin.constants.URLs;
 import tr.com.huseyinaydin.model.Earthquake;
 
 public class TabFragment extends Fragment {
 
-    private ListView earthquakeListView;
+
     private EarthquakeAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tab, container, false);
 
-        ListView listView = view.findViewById(R.id.list_view);
+        AndroidThreeTen.init(view.getContext());
 
-        // Örnek veri (API'den gelen verilerle değiştirilecek)
-        List<Earthquake> earthquakes = new ArrayList<>();
-        earthquakes.add(new Earthquake(4.5, "İstanbul - Silivri", "2024-03-01T14:09:54", 7.2));
-        earthquakes.add(new Earthquake(2.3, "İzmir - Seferihisar", "2024-03-01T15:22:11", 5.8));
-        earthquakes.add(new Earthquake(1.8, "Ankara - Çubuk", "2024-03-01T16:45:33", 3.5));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime threeHoursAgo = now.minusHours(3);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-        // Adapter oluştur ve listeye bağla
-        adapter = new EarthquakeAdapter(view.getContext(), earthquakes);
-        listView.setAdapter(adapter);
+        String start = threeHoursAgo.format(formatter);
+        String end = now.format(formatter);
+        new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
         return view;
     }
 
@@ -116,4 +134,126 @@ public class TabFragment extends Fragment {
         }
     }
 
+
+    private class FetchEarthquakeData extends AsyncTask<String, Void, String> {
+        private ListView earthquakeListView;
+        private View view;
+        private List<Earthquake> earthquakeList;
+
+        public FetchEarthquakeData(View view) {
+            earthquakeList = new ArrayList<>();
+            this.view = view;
+        }
+
+        @Override
+        protected String doInBackground(String... urls) {
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String earthquakeJsonStr = null;
+            Log.e("URL", urls[0]);
+            try {
+                URL url = new URL(urls[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuilder buffer = new StringBuilder();
+
+                if (inputStream == null) {
+                    return null;
+                }
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line).append("\n");
+                }
+
+                if (buffer.length() == 0) {
+                    return null;
+                }
+
+                earthquakeJsonStr = buffer.toString();
+            } catch (IOException e) {
+                Log.e("EarthquakeActivity", "!Hata: ", e);
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e("EarthquakeActivity", "Akış kapanırken hata oldu!", e);
+                    }
+                }
+            }
+
+            return earthquakeJsonStr;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                try {
+                    // JSONArray olarak parse ediyoruz çünkü gelen veri bir array
+                    JSONArray earthquakes = new JSONArray(result);
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("Son Depremler:\n\n");
+
+                    for (int i = 0; i < earthquakes.length(); i++) {
+                        JSONObject earthquake = earthquakes.getJSONObject(i);
+
+                        // Tarih formatını düzenle
+                        String dateStr = earthquake.getString("date");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                        Date date = sdf.parse(dateStr);
+                        String formattedDate = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(date);
+
+
+                        earthquakeList.add(new Earthquake(
+                                earthquake.getDouble("magnitude"),
+                                earthquake.getString("type"),
+                                earthquake.getString("location"),
+                                earthquake.getString("province"),
+                                earthquake.getString("district"),
+                                formattedDate, // Bu tarih formatlanmış bir String ise direkt geçiyoruz
+                                earthquake.getString("depth"),
+                                earthquake.getString("latitude"),
+                                earthquake.getString("longitude")
+                        ));
+                        stringBuilder.append("Büyüklük: ").append(earthquake.getString("magnitude")).append(" - ")
+                                .append(earthquake.getString("type")).append("\n")
+                                .append("Yer: ").append(earthquake.getString("location")).append("\n")
+                                .append("İl/İlçe: ").append(earthquake.getString("province")).append("/")
+                                .append(earthquake.getString("district")).append("\n")
+                                .append("Tarih: ").append(formattedDate).append("\n")
+                                .append("Derinlik: ").append(earthquake.getString("depth")).append(" km\n")
+                                .append("Koordinat: ").append(earthquake.getString("latitude")).append(", ")
+                                .append(earthquake.getString("longitude")).append("\n\n");
+                    }
+
+                    if (earthquakes.length() == 0) {
+                        stringBuilder.append("Son deprem bulunamadı.");
+                    }
+
+                    System.out.println(stringBuilder.toString());
+                    ListView listView = view.findViewById(R.id.list_view);
+                    // Adapter oluştur ve listeye bağla
+                    adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
+                    listView.setAdapter(adapter);
+                    //resultTextView.setText(stringBuilder.toString());
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Error parsing JSON", e);
+                    //resultTextView.setText("Deprem verileri işlenirken hata oluştu: " + e.getMessage());
+                }
+            } else {
+                //resultTextView.setText("Veri alınamadı. İnternet bağlantınızı kontrol edin.");
+            }
+        }
+    }
 }
