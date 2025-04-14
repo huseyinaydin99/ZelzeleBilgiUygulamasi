@@ -1,24 +1,16 @@
 package tr.com.huseyinaydin;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -27,22 +19,12 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
-import tr.com.huseyinaydin.constants.URLs;
+import tr.com.huseyinaydin.fragments.TabFragment;
+import tr.com.huseyinaydin.fragments.TabFragment2;
+import tr.com.huseyinaydin.fragments.TabFragment3;
 
 public class EarthquakeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
@@ -133,9 +115,9 @@ public class EarthquakeActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new TabFragment(), "Afad");
-        adapter.addFragment(new TabFragment(), "Kandilli");
-        adapter.addFragment(new TabFragment(), "Ara");
+        adapter.addFragment(new TabFragment(), "3 saat 0-3");
+        adapter.addFragment(new TabFragment2(), "24 saat 3-4");
+        adapter.addFragment(new TabFragment3(), "20 gün 4>");
         viewPager.setAdapter(adapter);
     }
 

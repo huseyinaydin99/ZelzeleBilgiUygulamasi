@@ -1,4 +1,4 @@
-package tr.com.huseyinaydin;
+package tr.com.huseyinaydin.fragments;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
@@ -34,27 +34,27 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import tr.com.huseyinaydin.R;
 import tr.com.huseyinaydin.constants.URLs;
 import tr.com.huseyinaydin.model.Earthquake;
 
-public class TabFragment extends Fragment {
-
+public class TabFragment2 extends Fragment {
 
     private EarthquakeAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_tab, container, false);
+        View view = inflater.inflate(R.layout.fragment_tab2, container, false);
 
         AndroidThreeTen.init(view.getContext());
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime threeHoursAgo = now.minusHours(3);
+        LocalDateTime threeHoursAgo = now.minusHours(24);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         String start = threeHoursAgo.format(formatter);
         String end = now.format(formatter);
-        new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+        new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=3&maxmag=4");
         return view;
     }
 
@@ -242,7 +242,7 @@ public class TabFragment extends Fragment {
                     }
 
                     System.out.println(stringBuilder.toString());
-                    ListView listView = view.findViewById(R.id.list_view);
+                    ListView listView = view.findViewById(R.id.list_view2);
                     // Adapter oluştur ve listeye bağla
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
                     listView.setAdapter(adapter);
