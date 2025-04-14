@@ -7,19 +7,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/splash_bg_color">
+    android:background="#FFFFFF">
 
     <!-- Logo (Ortalanmış) -->
     <ImageView
         android:id="@+id/logoImageView"
-        android:layout_width="270dp"
-        android:layout_height="194dp"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
         android:contentDescription="@string/app_logo_desc"
-        android:src="@drawable/zelzele_logo"
+        android:src="@drawable/zelzelelogo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="centerCrop"
+        android:background="@drawable/rounded_image"
+        android:clipToOutline="true"/>
 
     <!-- ProgressBar (Profesyonel Daire Şeklinde) -->
     <ProgressBar

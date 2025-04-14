@@ -1,5 +1,6 @@
 package tr.com.huseyinaydin.fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
@@ -9,10 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -44,12 +47,60 @@ public class TabFragment extends Fragment {
 
     private EarthquakeAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private AppCompatImageButton exportButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tab, container, false);
 
         AndroidThreeTen.init(view.getContext());
+
+        // Dışa aktarma düğmesini başlattım
+        exportButton = view.findViewById(R.id.exportButton);
+
+        // Dışa aktarma düğmesi için bir tıklama dinleyicisi ayarladım
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dışa aktarım işlemleri
+                Toast.makeText(view.getContext(), "Dışa aktarım butonu tıklandı!", Toast.LENGTH_SHORT).show();
+                // Bir iletişim kutusu oluşturucu oluşturun
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Dışa Aktarım İçin Dosya Formatı Seç");
+
+                // PDF, HTML, Metin ve Word için onay kutuları oluşturun
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_layout, null);
+                final CheckBox pdfCheckBox = dialogView.findViewById(R.id.pdfCheckBox);
+                final CheckBox htmlCheckBox = dialogView.findViewById(R.id.htmlCheckBox);
+                final CheckBox textCheckBox = dialogView.findViewById(R.id.textCheckBox);
+                final CheckBox wordCheckBox = dialogView.findViewById(R.id.wordCheckBox);
+
+                // İletişim düzenini ayarladım
+                builder.setView(dialogView);
+
+                // Eylem düğmelerini ayarladım (İptal ve Kaydet)
+                builder.setPositiveButton("Kaydet", (dialog, which) -> {
+                    // Kaydetme işlemini gerçekleştirdim
+                    String selectedFormats = "Dışa aktarım dosya formatı seç: ";
+                    if (pdfCheckBox.isChecked()) selectedFormats += "PDF ";
+                    if (htmlCheckBox.isChecked()) selectedFormats += "HTML ";
+                    if (textCheckBox.isChecked()) selectedFormats += "Text ";
+                    if (wordCheckBox.isChecked()) selectedFormats += "Word ";
+                    Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
+                });
+
+                builder.setNegativeButton("İptal", (dialog, which) -> {
+                    // İptal işlemini gerçekleştirdim
+                    dialog.dismiss();
+                });
+
+                // Dokunmatik ekranın dışında iptal edilemeyecek şekilde iletişim kutusunu ayarladım
+                AlertDialog dialog = builder.create();
+                dialog.setCancelable(false);  // Dış dokunuşta iletişim kutusunun kapanmasını devre dışı bıraktım
+
+                dialog.show(); //Ya Allah!
+            }
+        });
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime threeHoursAgo = now.minusHours(3);

@@ -1,30 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="160dp"
-    android:background="@color/colorPrimary"
+    android:layout_height="200dp"
+    android:background="@color/black"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@mipmap/ic_launcher"
-        android:layout_gravity="center"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/black"
+        android:orientation="horizontal"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <TextView
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/zelzelelogo"
+            android:background="@drawable/rounded_image"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true"  />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Kullanıcı Adı"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"/>
+        android:background="@color/black"
+        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Hoşgeldiniz..."
-        android:textColor="@android:color/white"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zelzele Bilgi Sistemi"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Versiyon 1.0"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
 </LinearLayout>
