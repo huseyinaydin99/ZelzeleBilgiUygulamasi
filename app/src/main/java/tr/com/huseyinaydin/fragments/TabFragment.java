@@ -11,9 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -40,8 +42,8 @@ import tr.com.huseyinaydin.model.Earthquake;
 
 public class TabFragment extends Fragment {
 
-
     private EarthquakeAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +58,17 @@ public class TabFragment extends Fragment {
         String start = threeHoursAgo.format(formatter);
         String end = now.format(formatter);
         new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        // SwipeRefreshLayout'ı dinleyelim
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Toast.makeText(view.getContext(), "Yenilenme metodu çalıştı", Toast.LENGTH_SHORT).show();
+                // Burada verileri yenileme işlemini yaparım
+                new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+            }
+        });
         return view;
     }
 
@@ -243,6 +256,7 @@ public class TabFragment extends Fragment {
                     }
 
                     System.out.println(stringBuilder.toString());
+                    //swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
                     ListView listView = view.findViewById(R.id.list_view);
                     // Adapter oluştur ve listeye bağla
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
@@ -255,6 +269,8 @@ public class TabFragment extends Fragment {
             } else {
                 //resultTextView.setText("Veri alınamadı. İnternet bağlantınızı kontrol edin.");
             }
+            // 🔽 Bu satır ile yenileme spinner'ını durduruyorum!
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 }
