@@ -11,9 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -36,11 +38,12 @@ import java.util.Locale;
 
 import tr.com.huseyinaydin.R;
 import tr.com.huseyinaydin.constants.URLs;
-import tr.com.huseyinaydin.model.Earthquake;
+import tr.com.huseyinaydin.models.Earthquake;
 
 public class TabFragment3 extends Fragment {
 
     private EarthquakeAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +57,19 @@ public class TabFragment3 extends Fragment {
 
         String start = threeHoursAgo.format(formatter);
         String end = now.format(formatter);
+
         new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=4&maxmag=12");
+
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout3);
+        // SwipeRefreshLayout'ı dinleyelim
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Toast.makeText(view.getContext(), "Veriler yenilendi!", Toast.LENGTH_SHORT).show();
+                // Burada verileri yenileme işlemini yaparım
+                new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=4&maxmag=12");
+            }
+        });
         return view;
     }
 
@@ -254,6 +269,8 @@ public class TabFragment3 extends Fragment {
             } else {
                 //resultTextView.setText("Veri alınamadı. İnternet bağlantınızı kontrol edin.");
             }
+            // 🔽 Bu satır ile yenileme spinner'ını durduruyorum!
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 }

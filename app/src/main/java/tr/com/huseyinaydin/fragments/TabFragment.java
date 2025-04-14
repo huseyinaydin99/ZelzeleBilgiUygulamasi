@@ -38,7 +38,7 @@ import java.util.Locale;
 
 import tr.com.huseyinaydin.R;
 import tr.com.huseyinaydin.constants.URLs;
-import tr.com.huseyinaydin.model.Earthquake;
+import tr.com.huseyinaydin.models.Earthquake;
 
 public class TabFragment extends Fragment {
 
@@ -64,7 +64,7 @@ public class TabFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Toast.makeText(view.getContext(), "Yenilenme metodu çalıştı", Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), "Veriler yenilendi!", Toast.LENGTH_SHORT).show();
                 // Burada verileri yenileme işlemini yaparım
                 new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
             }

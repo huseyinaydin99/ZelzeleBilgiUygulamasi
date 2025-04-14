@@ -1,4 +1,4 @@
-package tr.com.huseyinaydin.model;
+package tr.com.huseyinaydin.models;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

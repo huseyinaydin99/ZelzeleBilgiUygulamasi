@@ -1,4 +1,4 @@
-package tr.com.huseyinaydin;
+package tr.com.huseyinaydin.activities;
 
 import android.os.Bundle;
 
@@ -22,6 +22,7 @@ import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import tr.com.huseyinaydin.R;
 import tr.com.huseyinaydin.fragments.TabFragment;
 import tr.com.huseyinaydin.fragments.TabFragment2;
 import tr.com.huseyinaydin.fragments.TabFragment3;
