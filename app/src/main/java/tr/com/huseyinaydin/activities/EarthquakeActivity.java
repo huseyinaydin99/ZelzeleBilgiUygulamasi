@@ -13,6 +13,10 @@ import androidx.core.view.GravityCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import androidx.appcompat.widget.SearchView;
+
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -33,11 +37,13 @@ import tr.com.huseyinaydin.fragments.TabFragment3;
 
 public class EarthquakeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_earthquake);
+
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -99,6 +105,23 @@ public class EarthquakeActivity extends AppCompatActivity {
                 // newState: STATE_IDLE, STATE_DRAGGING, STATE_SETTLING
             }
         });
+
+        SearchView searchView = findViewById(R.id.search_view);
+
+// SearchView'in içindeki EditText'e ulaş
+        int searchEditTextId = searchView.getContext().getResources()
+                .getIdentifier("android:id/search_src_text", null, null);
+
+        EditText searchEditText = searchView.findViewById(searchEditTextId);
+
+        if (searchEditText != null) {
+            searchEditText.clearFocus(); // Fokus aldırma
+            searchEditText.setFocusable(false); // İlk başta focus kapalı
+            searchEditText.setFocusableInTouchMode(true); // Ama sonra kullanıcı dokunursa açılabilsin
+        }
+
+        // Klavye direkt açılmasın
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         //new FetchEarthquakeData().execute(URLs.getLastOneHourAfad());
     }

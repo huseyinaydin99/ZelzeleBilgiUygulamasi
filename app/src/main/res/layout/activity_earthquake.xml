@@ -22,15 +22,21 @@
             android:background="@color/white"
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:title=""
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
-            <TextView
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Zelzele Bilgi Uygulaması"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:focusable="false"
+                android:queryHint="Ara..."
+                android:background="@drawable/searchview_background"
+                app:iconifiedByDefault="false"
+                app:queryBackground="@android:color/transparent"
+                app:submitBackground="@android:color/transparent" />
         </androidx.appcompat.widget.Toolbar>
 
         <!-- Tab içerikleri -->

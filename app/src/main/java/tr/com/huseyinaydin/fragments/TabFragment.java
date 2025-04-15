@@ -102,22 +102,22 @@ public class TabFragment extends Fragment {
                     if (pdfCheckBox.isChecked()){
                         selectedFormats += "PDF ";
                         //System.out.println(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
-                        earthquakeExporter.exportToPdf(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
+                        earthquakeExporter.exportToPdf(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
                         /*for(int i = 0; i < earthquakesBackup.size(); i++){
                             System.out.println(earthquakesBackup.get(i).toString());
                         }*/
                     }
                     if (htmlCheckBox.isChecked()){
                         selectedFormats += "HTML ";
-                        earthquakeExporter.exportToHtml(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
+                        earthquakeExporter.exportToHtml(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
                     }
                     if (textCheckBox.isChecked()){
                         selectedFormats += "Text ";
-                        earthquakeExporter.exportToTxt(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
+                        earthquakeExporter.exportToTxt(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
                     }
                     if (wordCheckBox.isChecked()){
                         selectedFormats += "Word ";
-                        earthquakeExporter.exportToWord(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
+                        earthquakeExporter.exportToWord(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
                     }
                     Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
                 });

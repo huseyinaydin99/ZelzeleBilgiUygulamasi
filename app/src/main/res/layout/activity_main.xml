@@ -10,6 +10,20 @@
     android:background="#FFFFFF">
 
     <!-- Logo (Ortalanmış) -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zelzele Bilgi Uygulaması"
+        android:textColor="@color/black"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/logoImageView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.809" />
+
     <ImageView
         android:id="@+id/logoImageView"
         android:layout_width="220dp"
@@ -29,7 +43,7 @@
         android:id="@+id/progressBar"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="250dp"
-        android:layout_height="12dp"
+        android:layout_height="13dp"
         android:layout_marginTop="32dp"
         android:indeterminate="false"
         android:max="100"
