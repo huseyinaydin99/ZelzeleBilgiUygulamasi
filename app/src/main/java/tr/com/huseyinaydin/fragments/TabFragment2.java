@@ -1,18 +1,25 @@
 package tr.com.huseyinaydin.fragments;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -35,21 +42,98 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import tr.com.huseyinaydin.R;
+import tr.com.huseyinaydin.activities.EarthquakeActivity;
 import tr.com.huseyinaydin.constants.URLs;
 import tr.com.huseyinaydin.models.Earthquake;
+import tr.com.huseyinaydin.utils.EarthquakeExporter;
+import tr.com.huseyinaydin.utils.EarthquakeExporterImpl;
 
 public class TabFragment2 extends Fragment {
 
     private EarthquakeAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private AppCompatImageButton exportButton;
+    private List<Earthquake> earthquakesBackup;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tab2, container, false);
 
         AndroidThreeTen.init(view.getContext());
+
+        earthquakesBackup = new ArrayList<>();
+
+        // Dışa aktarma düğmesini başlattım
+        exportButton = view.findViewById(R.id.exportButton2);
+
+        // Dışa aktarma düğmesi için bir tıklama dinleyicisi ayarladım
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            EarthquakeExporter earthquakeExporter = new EarthquakeExporterImpl(view.getContext());
+            @Override
+            public void onClick(View view) {
+                // Dışa aktarım işlemleri
+                Toast.makeText(view.getContext(), "Dışa aktarım butonu tıklandı!", Toast.LENGTH_SHORT).show();
+                // Bir iletişim kutusu oluşturucu oluşturun
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Dışa Aktarım İçin Dosya Formatı Seç");
+
+                // PDF, HTML, Metin ve Word için onay kutuları oluşturun
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_layout, null);
+                final CheckBox pdfCheckBox = dialogView.findViewById(R.id.pdfCheckBox);
+                final CheckBox htmlCheckBox = dialogView.findViewById(R.id.htmlCheckBox);
+                final CheckBox textCheckBox = dialogView.findViewById(R.id.textCheckBox);
+                final CheckBox wordCheckBox = dialogView.findViewById(R.id.wordCheckBox);
+
+                // İletişim düzenini ayarladım
+                builder.setView(dialogView);
+
+                // Eylem düğmelerini ayarladım (İptal ve Kaydet)
+                builder.setPositiveButton("Kaydet", (dialog, which) -> {
+                    if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions((EarthquakeActivity)requireActivity(),
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                    }
+                    // Kaydetme işlemini gerçekleştirdim
+                    String selectedFormats = "Dışa aktarım dosya formatı seç: ";
+                    if (pdfCheckBox.isChecked()){
+                        selectedFormats += "PDF ";
+                        //System.out.println(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+                        earthquakeExporter.exportToPdf(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
+                        /*for(int i = 0; i < earthquakesBackup.size(); i++){
+                            System.out.println(earthquakesBackup.get(i).toString());
+                        }*/
+                    }
+                    if (htmlCheckBox.isChecked()){
+                        selectedFormats += "HTML ";
+                        earthquakeExporter.exportToHtml(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
+                    }
+                    if (textCheckBox.isChecked()){
+                        selectedFormats += "Text ";
+                        earthquakeExporter.exportToTxt(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
+                    }
+                    if (wordCheckBox.isChecked()){
+                        selectedFormats += "Word ";
+                        earthquakeExporter.exportToWord(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + " - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
+                    }
+                    Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
+                });
+
+                builder.setNegativeButton("İptal", (dialog, which) -> {
+                    // İptal işlemini gerçekleştirdim
+                    dialog.dismiss();
+                });
+
+                // Dokunmatik ekranın dışında iptal edilemeyecek şekilde iletişim kutusunu ayarladım
+                AlertDialog dialog = builder.create();
+                dialog.setCancelable(false);  // Dış dokunuşta iletişim kutusunun kapanmasını devre dışı bıraktım
+
+                dialog.show(); //Ya Allah!
+            }
+        });
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime threeHoursAgo = now.minusHours(24);
@@ -211,6 +295,7 @@ public class TabFragment2 extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
+            earthquakeList.clear();
             if (result != null) {
                 try {
                     // JSONArray olarak parse ediyoruz çünkü gelen veri bir array
@@ -260,6 +345,8 @@ public class TabFragment2 extends Fragment {
                     // Adapter oluştur ve listeye bağla
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
                     listView.setAdapter(adapter);
+                    earthquakesBackup.clear();
+                    earthquakesBackup.addAll(earthquakeList);
                     //resultTextView.setText(stringBuilder.toString());
                 } catch (Exception e) {
                     Log.e("MainActivity", "Error parsing JSON", e);
