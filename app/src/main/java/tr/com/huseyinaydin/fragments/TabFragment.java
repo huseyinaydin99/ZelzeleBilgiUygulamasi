@@ -300,15 +300,14 @@ public class TabFragment extends Fragment implements SearchableFragment {
                                 Log.d("girdi girmedi?", "province girdi");
                                 filtered.add(item);
                             }
-                            Log.d("filterPattern", filterPattern + " - " + item.getLocation().toLowerCase());
-                            if (item.getLocation().toLowerCase().contains(filterPattern)) {
+                            else if (item.getLocation().toLowerCase().contains(filterPattern)) {
                                 Log.d("girdi girmedi?", "location girdi");
                                 filtered.add(item);
                             }
-                            if (item.getDistrict().toLowerCase().contains(filterPattern)) {
+                            else if (item.getDistrict().toLowerCase().contains(filterPattern)) {
                                 filtered.add(item);
                             }
-                            if (item.getFormattedDate().toLowerCase().contains(filterPattern)) {
+                            else if (item.getFormattedDate().toLowerCase().contains(filterPattern)) {
                                 filtered.add(item);
                             }
                         }
