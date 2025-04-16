@@ -49,7 +49,9 @@ import java.util.UUID;
 import tr.com.huseyinaydin.R;
 import tr.com.huseyinaydin.activities.EarthquakeActivity;
 import tr.com.huseyinaydin.constants.URLs;
+import tr.com.huseyinaydin.database.FileRepository;
 import tr.com.huseyinaydin.models.Earthquake;
+import tr.com.huseyinaydin.models.FileModel;
 import tr.com.huseyinaydin.utils.EarthquakeExporter;
 import tr.com.huseyinaydin.utils.EarthquakeExporterImpl;
 
@@ -59,6 +61,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private AppCompatImageButton exportButton;
     private List<Earthquake> earthquakesBackup;
+    private List<Earthquake> filteredList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,6 +69,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
 
         AndroidThreeTen.init(view.getContext());
 
+        filteredList = new ArrayList<>();
         earthquakesBackup = new ArrayList<>();
 
         // Dışa aktarma düğmesini başlattım
@@ -74,6 +78,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
         // Dışa aktarma düğmesi için bir tıklama dinleyicisi ayarladım
         exportButton.setOnClickListener(new View.OnClickListener() {
             EarthquakeExporter earthquakeExporter = new EarthquakeExporterImpl(view.getContext());
+
             @Override
             public void onClick(View view) {
                 // Dışa aktarım işlemleri
@@ -94,34 +99,54 @@ public class TabFragment extends Fragment implements SearchableFragment {
 
                 // Eylem düğmelerini ayarladım (İptal ve Kaydet)
                 builder.setPositiveButton("Kaydet", (dialog, which) -> {
+                    FileRepository fileRepository = new FileRepository(view.getContext());
+
                     if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions((EarthquakeActivity)requireActivity(),
+                        ActivityCompat.requestPermissions((EarthquakeActivity) requireActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
                     }
                     // Kaydetme işlemini gerçekleştirdim
                     String selectedFormats = "Dışa aktarım dosya formatı seç: ";
-                    if (pdfCheckBox.isChecked()){
+                    String path = "";
+                    if(filteredList.size() > 0) {
+                        earthquakesBackup.clear();
+                        earthquakesBackup.addAll(filteredList);
+                    }
+                    if (pdfCheckBox.isChecked()) {
                         selectedFormats += "PDF ";
-                        //System.out.println(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
-                        earthquakeExporter.exportToPdf(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
-                        /*for(int i = 0; i < earthquakesBackup.size(); i++){
-                            System.out.println(earthquakesBackup.get(i).toString());
-                        }*/
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF";
+                        earthquakeExporter.exportToPdf(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
+                        fileRepository.insertFilePath(path);
                     }
-                    if (htmlCheckBox.isChecked()){
+                    if (htmlCheckBox.isChecked()) {
                         selectedFormats += "HTML ";
-                        earthquakeExporter.exportToHtml(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML";
+                        earthquakeExporter.exportToHtml(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
+                        fileRepository.insertFilePath(path);
                     }
-                    if (textCheckBox.isChecked()){
+                    if (textCheckBox.isChecked()) {
                         selectedFormats += "Text ";
-                        earthquakeExporter.exportToTxt(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT";
+                        earthquakeExporter.exportToTxt(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
+                        fileRepository.insertFilePath(path);
                     }
-                    if (wordCheckBox.isChecked()){
+                    if (wordCheckBox.isChecked()) {
                         selectedFormats += "Word ";
-                        earthquakeExporter.exportToWord(earthquakesBackup,Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX";
+                        earthquakeExporter.exportToWord(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
+                        fileRepository.insertFilePath(path);
                     }
                     Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
+
+                    // Dosya ekleme
+                    //fileRepository.insertFilePath("/storage/emulated/0/Download/dosya1.txt");
+
+                    // Listeyi çekme
+                    List<FileModel> files = fileRepository.getAllFiles();
+                    for(int i = 0; i < files.size(); i++){
+                        Log.d("dosya", files.get(i).getFilePath());
+                    }
                 });
 
                 builder.setNegativeButton("İptal", (dialog, which) -> {
@@ -172,13 +197,12 @@ public class TabFragment extends Fragment implements SearchableFragment {
         private Context context;
         private List<Earthquake> earthquakes;
         private List<Earthquake> originalList;
-        private List<Earthquake> filteredList;
 
         public EarthquakeAdapter(Context context, List<Earthquake> earthquakes) {
             super(context, R.layout.list_item_earthquake, earthquakes);
             this.context = context;
             this.earthquakes = earthquakes;
-            filteredList = new ArrayList<>();
+            //filteredList = new ArrayList<>();
             originalList = new ArrayList<>();
         }
 
@@ -202,7 +226,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
             }
 
             Earthquake earthquake;
-            if(filteredList.size() <= 0)
+            if (filteredList.size() <= 0)
                 earthquake = earthquakes.get(position);
             else
                 earthquake = filteredList.get(position); // ✅ doğru liste
@@ -222,7 +246,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
 
         @Override
         public int getCount() {
-            if(filteredList.size() <= 0)
+            if (filteredList.size() <= 0)
                 return earthquakes.size();
             else
                 return filteredList.size(); // ✅ doğru liste
@@ -418,7 +442,10 @@ public class TabFragment extends Fragment implements SearchableFragment {
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
                     listView.setAdapter(adapter);
                     earthquakesBackup.clear();
-                    earthquakesBackup.addAll(earthquakeList);
+                    if(filteredList.size() > 0)
+                        earthquakesBackup.addAll(filteredList);
+                    else
+                        earthquakesBackup.addAll(earthquakeList);
                     //resultTextView.setText(stringBuilder.toString());
                 } catch (Exception e) {
                     Log.e("MainActivity", "Error parsing JSON", e);
