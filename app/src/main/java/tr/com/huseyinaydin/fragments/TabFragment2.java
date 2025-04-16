@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +53,7 @@ import tr.com.huseyinaydin.models.Earthquake;
 import tr.com.huseyinaydin.utils.EarthquakeExporter;
 import tr.com.huseyinaydin.utils.EarthquakeExporterImpl;
 
-public class TabFragment2 extends Fragment {
+public class TabFragment2 extends Fragment implements SearchableFragment {
 
     private EarthquakeAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -156,15 +158,28 @@ public class TabFragment2 extends Fragment {
         return view;
     }
 
-    public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
+    @Override
+    public void filterList(String query) {
+        Log.d("filterList", "Buradayım filterList");
+        if (adapter != null) {
+            Log.d("filterList", "Buradayım adapter");
+            adapter.getFilter().filter(query);
+        }
+    }
+
+    public class EarthquakeAdapter extends ArrayAdapter<Earthquake> implements Filterable {
 
         private Context context;
         private List<Earthquake> earthquakes;
+        private List<Earthquake> originalList;
+        private List<Earthquake> filteredList;
 
         public EarthquakeAdapter(Context context, List<Earthquake> earthquakes) {
             super(context, R.layout.list_item_earthquake, earthquakes);
             this.context = context;
             this.earthquakes = earthquakes;
+            filteredList = new ArrayList<>();
+            originalList = new ArrayList<>();
         }
 
         @Override
@@ -186,7 +201,11 @@ public class TabFragment2 extends Fragment {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            Earthquake earthquake = earthquakes.get(position);
+            Earthquake earthquake;
+            if(filteredList.size() <= 0)
+                earthquake = earthquakes.get(position);
+            else
+                earthquake = filteredList.get(position); // ✅ doğru liste
 
             // Şiddete göre renk belirleme
             int color = getMagnitudeColor(earthquake.getMagnitude());
@@ -199,6 +218,14 @@ public class TabFragment2 extends Fragment {
             holder.depthText.setText("Derinlik: " + earthquake.getDepth() + " km");
 
             return convertView;
+        }
+
+        @Override
+        public int getCount() {
+            if(filteredList.size() <= 0)
+                return earthquakes.size();
+            else
+                return filteredList.size(); // ✅ doğru liste
         }
 
         private int getMagnitudeColor(double magnitude) {
@@ -230,8 +257,52 @@ public class TabFragment2 extends Fragment {
             TextView dateText;
             TextView depthText;
         }
-    }
 
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    List<Earthquake> filtered = new ArrayList<>();
+
+                    if (constraint == null || constraint.length() == 0) {
+                        filtered.addAll(earthquakes);
+                    } else {
+                        String filterPattern = constraint.toString().toLowerCase().trim();
+                        for (Earthquake item : earthquakes) {
+                            Log.d("filterMetot", filterPattern + " - " + item.getLocation().toLowerCase());
+                            if (item.getProvince().toLowerCase().contains(filterPattern)) {
+                                Log.d("girdi girmedi?", "province girdi");
+                                filtered.add(item);
+                            }
+                            Log.d("filterPattern", filterPattern + " - " + item.getLocation().toLowerCase());
+                            if (item.getLocation().toLowerCase().contains(filterPattern)) {
+                                Log.d("girdi girmedi?", "location girdi");
+                                filtered.add(item);
+                            }
+                            if (item.getDistrict().toLowerCase().contains(filterPattern)) {
+                                filtered.add(item);
+                            }
+                            if (item.getFormattedDate().toLowerCase().contains(filterPattern)) {
+                                filtered.add(item);
+                            }
+                        }
+                    }
+
+                    results.values = filtered;
+                    return results;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    filteredList.clear();
+                    filteredList.addAll((List<Earthquake>) results.values);
+                    notifyDataSetChanged();
+                }
+            };
+        }
+    }
 
     private class FetchEarthquakeData extends AsyncTask<String, Void, String> {
         private ListView earthquakeListView;
