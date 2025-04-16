@@ -111,4 +111,19 @@ public class Earthquake {
             return formattedDate;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Earthquake{" +
+                "magnitude=" + magnitude +
+                ", type='" + type + '\'' +
+                ", location='" + location + '\'' +
+                ", province='" + province + '\'' +
+                ", district='" + district + '\'' +
+                ", formattedDate='" + formattedDate + '\'' +
+                ", depth='" + depth + '\'' +
+                ", latitude='" + latitude + '\'' +
+                ", longitude='" + longitude + '\'' +
+                '}';
+    }
 }

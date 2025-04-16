@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,16 +22,24 @@ import android.widget.Toast;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tr.com.huseyinaydin.R;
+import tr.com.huseyinaydin.fragments.SearchableFragment;
 import tr.com.huseyinaydin.fragments.TabFragment;
 import tr.com.huseyinaydin.fragments.TabFragment2;
 import tr.com.huseyinaydin.fragments.TabFragment3;
@@ -38,13 +47,14 @@ import tr.com.huseyinaydin.fragments.TabFragment3;
 public class EarthquakeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private SearchView searchView;
+    private ViewPager2 viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_earthquake);
 
-
+        viewPager = findViewById(R.id.view_pager);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -69,11 +79,33 @@ public class EarthquakeActivity extends AppCompatActivity {
         });
 
         // TabLayout ve ViewPager ayarları
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        setupViewPager(viewPager);
+        viewPager = findViewById(R.id.view_pager);
+        //setupViewPager(viewPager);
+
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(new TabFragment());
+        fragments.add(new TabFragment2());
+        fragments.add(new TabFragment3());
+
+        MyPagerAdapter adapter = new MyPagerAdapter(this, fragments);
+        viewPager.setAdapter(adapter);
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        //tabLayout.setupWithViewPager(viewPager);
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> {
+                    switch (position) {
+                        case 0:
+                            tab.setText("Ana Sayfa");
+                            break;
+                        case 1:
+                            tab.setText("Ayarlar");
+                            break;
+                        case 2:
+                            tab.setText("Abc");
+                            break;
+                    }
+                }).attach();
 
         // Tab ikonlarını ayarla
         tabLayout.getTabAt(0).setIcon(R.drawable.ic_home);
@@ -107,6 +139,22 @@ public class EarthquakeActivity extends AppCompatActivity {
         });
 
         SearchView searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d("onQueryTextSubmit","sorgu submit");
+                filterCurrentFragment(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("onQueryTextSubmit","sorgu text change");
+                filterCurrentFragment(newText);
+                return true;
+            }
+        });
+
 
 // SearchView'in içindeki EditText'e ulaş
         int searchEditTextId = searchView.getContext().getResources()
@@ -126,6 +174,16 @@ public class EarthquakeActivity extends AppCompatActivity {
         //new FetchEarthquakeData().execute(URLs.getLastOneHourAfad());
     }
 
+    private void filterCurrentFragment(String query) {
+        int currentItem = viewPager.getCurrentItem();
+        Fragment currentFragment = getSupportFragmentManager()
+                .findFragmentByTag("f" + currentItem); // ViewPager ile fragment'ı al
+        Log.d("null mı?", currentFragment == null ? "null" : "null değil");
+        if (currentFragment instanceof SearchableFragment) {
+            Log.d("filterCurrentFragment", "Buradayım SearchableFragment");
+            ((SearchableFragment) currentFragment).filterList(query);
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -184,4 +242,26 @@ public class EarthquakeActivity extends AppCompatActivity {
             return fragmentTitleList.get(position);
         }
     }
+
+    public class MyPagerAdapter extends FragmentStateAdapter {
+
+        private final List<Fragment> fragmentList;
+
+        public MyPagerAdapter(@NonNull FragmentActivity fragmentActivity, List<Fragment> fragments) {
+            super(fragmentActivity);
+            this.fragmentList = fragments;
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return fragmentList.get(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return fragmentList.size();
+        }
+    }
+
 }
