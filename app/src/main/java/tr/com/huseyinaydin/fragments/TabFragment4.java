@@ -20,6 +20,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,8 +44,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -68,13 +74,15 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
 
     //private EarthquakeAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-    //private AppCompatImageButton exportButton;
+    private AppCompatImageButton exportButton;
     /*private List<Earthquake> earthquakesBackup;
     private List<Earthquake> filteredList;*/
+    private View view;
+    List<FileModel> fileList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_tab4, container, false);
+        view = inflater.inflate(R.layout.fragment_tab4, container, false);
 
         AndroidThreeTen.init(view.getContext());
 
@@ -82,91 +90,16 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
         earthquakesBackup = new ArrayList<>();*/
 
         // Dışa aktarma düğmesini başlattım
-        //exportButton = view.findViewById(R.id.exportButton3);
+        exportButton = view.findViewById(R.id.exportButton4);
 
         // Dışa aktarma düğmesi için bir tıklama dinleyicisi ayarladım
-        /*exportButton.setOnClickListener(new View.OnClickListener() {
+        exportButton.setOnClickListener(new View.OnClickListener() {
             EarthquakeExporter earthquakeExporter = new EarthquakeExporterImpl(view.getContext());
             @Override
             public void onClick(View view) {
-                FileRepository fileRepository = new FileRepository(view.getContext());
-                // Dışa aktarım işlemleri
-                Toast.makeText(view.getContext(), "Dışa aktarım butonu tıklandı!", Toast.LENGTH_SHORT).show();
-                // Bir iletişim kutusu oluşturucu oluşturun
-                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle("Dışa Aktarım İçin Dosya Formatı Seç");
-
-                // PDF, HTML, Metin ve Word için onay kutuları oluşturun
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_layout, null);
-                final CheckBox pdfCheckBox = dialogView.findViewById(R.id.pdfCheckBox);
-                final CheckBox htmlCheckBox = dialogView.findViewById(R.id.htmlCheckBox);
-                final CheckBox textCheckBox = dialogView.findViewById(R.id.textCheckBox);
-                final CheckBox wordCheckBox = dialogView.findViewById(R.id.wordCheckBox);
-
-                // İletişim düzenini ayarladım
-                builder.setView(dialogView);
-
-                // Eylem düğmelerini ayarladım (İptal ve Kaydet)
-                builder.setPositiveButton("Kaydet", (dialog, which) -> {
-                    if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions((EarthquakeActivity)requireActivity(),
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-                    }
-                    // Kaydetme işlemini gerçekleştirdim
-                    String selectedFormats = "Dışa aktarım dosya formatı seç: ";
-                    String path = "";
-                    if(filteredList.size() > 0) {
-                        earthquakesBackup.clear();
-                        earthquakesBackup.addAll(filteredList);
-                    }
-                    if (pdfCheckBox.isChecked()) {
-                        selectedFormats += "PDF ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF";
-                        earthquakeExporter.exportToPdf(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
-                        fileRepository.insertFilePath(path);
-                    }
-                    if (htmlCheckBox.isChecked()) {
-                        selectedFormats += "HTML ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML";
-                        earthquakeExporter.exportToHtml(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
-                        fileRepository.insertFilePath(path);
-                    }
-                    if (textCheckBox.isChecked()) {
-                        selectedFormats += "Text ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT";
-                        earthquakeExporter.exportToTxt(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
-                        fileRepository.insertFilePath(path);
-                    }
-                    if (wordCheckBox.isChecked()) {
-                        selectedFormats += "Word ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX";
-                        earthquakeExporter.exportToWord(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
-                        fileRepository.insertFilePath(path);
-                    }
-                    // Dosya ekleme
-                    //fileRepository.insertFilePath("/storage/emulated/0/Download/dosya1.txt");
-
-                    // Listeyi çekme
-                    List<FileModel> files = fileRepository.getAllFiles();
-                    for(int i = 0; i < files.size(); i++){
-                        Log.d("dosya", files.get(i).getFilePath());
-                    }
-                    Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
-                });
-
-                builder.setNegativeButton("İptal", (dialog, which) -> {
-                    // İptal işlemini gerçekleştirdim
-                    dialog.dismiss();
-                });
-
-                // Dokunmatik ekranın dışında iptal edilemeyecek şekilde iletişim kutusunu ayarladım
-                AlertDialog dialog = builder.create();
-                dialog.setCancelable(false);  // Dış dokunuşta iletişim kutusunun kapanmasını devre dışı bıraktım
-
-                dialog.show(); //Ya Allah!
+                showSortDialog();
             }
-        });*/
+        });
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime threeHoursAgo = now.minusHours(480);
@@ -204,7 +137,7 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + FileDatabaseHelper.TABLE_FILES, null);
 
-        List<FileModel> fileList = new ArrayList<>();
+        fileList = new ArrayList<>();
         if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(FileDatabaseHelper.COLUMN_ID));
@@ -216,10 +149,119 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
         }
         cursor.close();
 
+        Collections.sort(fileList, new Comparator<FileModel>() {
+            @Override
+            public int compare(FileModel fileModel1, FileModel fileModel2) {
+                // timestamp'i karşılaştırıyoruz ki sıralayabilelim!
+                //return file1.getTimestamp().compareTo(file2.getTimestamp());
+
+                File file1 = new File(fileModel1.getFilePath());
+                File file2 = new File(fileModel2.getFilePath());
+
+                long modified1 = file1.lastModified();
+                long modified2 = file2.lastModified();
+
+                return Long.compare(modified2, modified1); // Yeni dosyalar önce gelsin sıralaması!
+                /*File file1 = new File(fileModel1.getFilePath());
+                File file2 = new File(fileModel2.getFilePath());
+
+                String name1 = file1.getName().toLowerCase(); // Küçük harf dönüşümü daha stabil sıralama için
+                String name2 = file2.getName().toLowerCase();
+
+                return name1.compareTo(name2); // A'dan Z'ye sıralar*/
+            }
+        });
         adapter = new FileAdapter(getContext(), fileList);
         listView.setAdapter(adapter);
 
         return view;
+    }
+
+    private void showSortDialog() {
+        View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_sort_options, null);
+
+        Spinner criteriaSpinner = dialogView.findViewById(R.id.spinner_criteria);
+        Spinner orderSpinner = dialogView.findViewById(R.id.spinner_order);
+
+        // Sıralama kriterleri ve yönleri
+        String[] criteria = {"Dosya Adı", "Boyut", "Dosya Türü", "Oluşturulma Tarihi"};
+        String[] orders = {"Artan (ASC)", "Azalan (DESC)"};
+
+        criteriaSpinner.setAdapter(new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, criteria));
+        orderSpinner.setAdapter(new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_dropdown_item, orders));
+
+        // AlertDialog
+        AlertDialog dialog = new AlertDialog.Builder(view.getContext())
+                .setTitle("Sıralama Seçenekleri")
+                .setView(dialogView)
+                .setPositiveButton("Sırala", (dialogInterface, which) -> {
+                    String selectedCriteria = criteriaSpinner.getSelectedItem().toString();
+                    String selectedOrder = orderSpinner.getSelectedItem().toString();
+
+                    // Seçime göre sıralama işlemi
+                    sortFiles(selectedCriteria, selectedOrder);
+                })
+                .setNegativeButton("İptal", null)
+                .create();
+
+        dialog.setCanceledOnTouchOutside(false); // dışarı tıklayınca kapanmasın
+        dialog.show();
+    }
+
+    private void sortFiles(final String criteria, final String order) {
+        Comparator<FileModel> comparator = new Comparator<FileModel>() {
+            @Override
+            public int compare(FileModel f1, FileModel f2) {
+                File file1 = new File(f1.getFilePath());
+                File file2 = new File(f2.getFilePath());
+
+                int result = 0;
+
+                switch (criteria) {
+                    case "Dosya Adı":
+                        result = file1.getName().toLowerCase().compareTo(file2.getName().toLowerCase());
+                        break;
+
+                    case "Boyut":
+                        long size1 = file1.length();
+                        long size2 = file2.length();
+                        result = Long.compare(size1, size2);
+                        break;
+
+                    case "Dosya Türü":
+                        String ext1 = getFileExtension(file1.getName());
+                        String ext2 = getFileExtension(file2.getName());
+                        result = ext1.compareTo(ext2);
+                        break;
+
+                    case "Oluşturulma Tarihi":
+                        long date1 = file1.lastModified();
+                        long date2 = file2.lastModified();
+                        result = Long.compare(date1, date2);
+                        break;
+                }
+
+                if (order.equals("DESC")) {
+                    result = -result;
+                }
+
+                return result;
+            }
+        };
+
+        Collections.sort(fileList, comparator);
+        //adapter.notifyDataSetChanged();
+        adapter = new FileAdapter(getContext(), fileList);
+        listView.setAdapter(adapter);
+    }
+
+    private String getFileExtension(String fileName) {
+        int index = fileName.lastIndexOf('.');
+        if (index > 0 && index < fileName.length() - 1) {
+            return fileName.substring(index + 1).toLowerCase();
+        } else {
+            return "";
+        }
     }
 
     @Override

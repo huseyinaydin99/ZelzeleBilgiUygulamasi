@@ -86,7 +86,7 @@ public class EarthquakeActivity extends AppCompatActivity {
                 /*fragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, new FileListFragment())
                         .commit();*/
-                viewPager.setCurrentItem(4);
+                viewPager.setCurrentItem(4, false);
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -122,6 +122,10 @@ public class EarthquakeActivity extends AppCompatActivity {
                             break;
                     }
                 }).attach();
+        // Fazla tab varsa sil
+        if (tabLayout.getTabCount() > 3) {
+            tabLayout.removeTabAt(3);
+        }
 
         // Tab ikonlarını ayarla
         tabLayout.getTabAt(0).setIcon(R.drawable.ic_home);
@@ -265,6 +269,7 @@ public class EarthquakeActivity extends AppCompatActivity {
         public MyPagerAdapter(@NonNull FragmentActivity fragmentActivity, List<Fragment> fragments) {
             super(fragmentActivity);
             this.fragmentList = fragments;
+            //this.fragmentList = fragments.subList(0, 3);
         }
 
         @NonNull
