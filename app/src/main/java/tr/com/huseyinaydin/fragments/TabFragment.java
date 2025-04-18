@@ -62,6 +62,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
     private AppCompatImageButton exportButton;
     private List<Earthquake> earthquakesBackup;
     private List<Earthquake> filteredList;
+    private ListView earthquakeListView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,6 +72,8 @@ public class TabFragment extends Fragment implements SearchableFragment {
 
         filteredList = new ArrayList<>();
         earthquakesBackup = new ArrayList<>();
+
+        earthquakeListView = view.findViewById(R.id.list_view);
 
         // Dışa aktarma düğmesini başlattım
         exportButton = view.findViewById(R.id.exportButton);
@@ -172,13 +175,23 @@ public class TabFragment extends Fragment implements SearchableFragment {
 
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         // SwipeRefreshLayout'ı dinleyelim
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        /*swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Toast.makeText(view.getContext(), "Veriler yenilendi!", Toast.LENGTH_SHORT).show();
                 // Burada verileri yenileme işlemini yaparım
-                new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+                //new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=4&maxmag=12");
             }
+        });*/
+
+        swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) -> {
+            return earthquakeListView.canScrollVertically(-1);
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            Toast.makeText(view.getContext(), "Veriler yenilendi!", Toast.LENGTH_SHORT).show();
+            // Yenileme işlemini burada yap
+            swipeRefreshLayout.setRefreshing(false);
         });
         return view;
     }
@@ -328,7 +341,6 @@ public class TabFragment extends Fragment implements SearchableFragment {
     }
 
     private class FetchEarthquakeData extends AsyncTask<String, Void, String> {
-        private ListView earthquakeListView;
         private View view;
         private List<Earthquake> earthquakeList;
 
@@ -436,10 +448,10 @@ public class TabFragment extends Fragment implements SearchableFragment {
 
                     System.out.println(stringBuilder.toString());
                     //swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
-                    ListView listView = view.findViewById(R.id.list_view);
+                    //ListView listView = view.findViewById(R.id.list_view);
                     // Adapter oluştur ve listeye bağla
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
-                    listView.setAdapter(adapter);
+                    earthquakeListView.setAdapter(adapter);
                     earthquakesBackup.clear();
                     if(filteredList.size() > 0)
                         earthquakesBackup.addAll(filteredList);

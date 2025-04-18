@@ -187,7 +187,7 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
                 //new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=4&maxmag=12");
             }
         });*/
-
+        listView = view.findViewById(R.id.list_view4);
         swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) -> {
             return listView.canScrollVertically(-1);
         });
@@ -198,7 +198,7 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
             swipeRefreshLayout.setRefreshing(false);
         });
 
-        listView = view.findViewById(R.id.list_view4);
+
         dbHelper = new FileDatabaseHelper(getContext());
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
