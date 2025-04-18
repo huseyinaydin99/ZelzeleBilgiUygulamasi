@@ -43,11 +43,13 @@ import tr.com.huseyinaydin.fragments.SearchableFragment;
 import tr.com.huseyinaydin.fragments.TabFragment;
 import tr.com.huseyinaydin.fragments.TabFragment2;
 import tr.com.huseyinaydin.fragments.TabFragment3;
+import tr.com.huseyinaydin.fragments.TabFragment4;
 
 public class EarthquakeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private SearchView searchView;
     private ViewPager2 viewPager;
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,8 @@ public class EarthquakeActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_1);
         }
 
+        fragmentManager = getSupportFragmentManager();
+
         // DrawerLayout ve NavigationView ayarları
         drawerLayout = findViewById(R.id.earthquake);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -75,17 +79,29 @@ public class EarthquakeActivity extends AppCompatActivity {
             // Menü öğeleri tıklama işlemleri
             Toast.makeText(getApplicationContext(), "tıklandı", Toast.LENGTH_SHORT).show();
             drawerLayout.closeDrawers();
+
+            int id = item.getItemId();
+
+            if (id == R.id.saved_files) {
+                /*fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, new FileListFragment())
+                        .commit();*/
+                viewPager.setCurrentItem(4);
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
 
         // TabLayout ve ViewPager ayarları
-        viewPager = findViewById(R.id.view_pager);
+        //viewPager = findViewById(R.id.view_pager);
         //setupViewPager(viewPager);
 
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new TabFragment());
         fragments.add(new TabFragment2());
         fragments.add(new TabFragment3());
+        fragments.add(new TabFragment4());
 
         MyPagerAdapter adapter = new MyPagerAdapter(this, fragments);
         viewPager.setAdapter(adapter);
@@ -212,7 +228,6 @@ public class EarthquakeActivity extends AppCompatActivity {
         adapter.addFragment(new TabFragment3(), "20 gün 4>");
         viewPager.setAdapter(adapter);
     }
-
 
     static class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> fragmentList = new ArrayList<>();
