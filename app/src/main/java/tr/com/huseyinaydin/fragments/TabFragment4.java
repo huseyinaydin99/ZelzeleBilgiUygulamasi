@@ -78,7 +78,8 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
     /*private List<Earthquake> earthquakesBackup;
     private List<Earthquake> filteredList;*/
     private View view;
-    List<FileModel> fileList;
+    private List<FileModel> fileList;
+    private List<FileModel> filteredList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,8 +87,8 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
 
         AndroidThreeTen.init(view.getContext());
 
-        /*filteredList = new ArrayList<>();
-        earthquakesBackup = new ArrayList<>();*/
+        filteredList = new ArrayList<>();
+        //earthquakesBackup = new ArrayList<>();
 
         // Dışa aktarma düğmesini başlattım
         exportButton = view.findViewById(R.id.exportButton4);
@@ -129,9 +130,14 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
             Toast.makeText(view.getContext(), "Veriler yenilendi!", Toast.LENGTH_SHORT).show();
             // Yenileme işlemini burada yap
             swipeRefreshLayout.setRefreshing(false);
+            refreshData();
         });
 
+        refreshData();
+        return view;
+    }
 
+    private void refreshData(){
         dbHelper = new FileDatabaseHelper(getContext());
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -173,8 +179,6 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
         });
         adapter = new FileAdapter(getContext(), fileList);
         listView.setAdapter(adapter);
-
-        return view;
     }
 
     private void showSortDialog() {
@@ -264,28 +268,30 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
         }
     }
 
-    @Override
+    /*@Override
     public void filterList(String query) {
 
-    }
+    }*/
 
-    /*@Override
+    @Override
     public void filterList(String query) {
         Log.d("filterList", "Buradayım filterList");
         if (adapter != null) {
             Log.d("filterList", "Buradayım adapter");
             adapter.getFilter().filter(query);
         }
-    }*/
+    }
 
-    public class FileAdapter extends ArrayAdapter<FileModel> {
+    public class FileAdapter extends ArrayAdapter<FileModel> implements Filterable {
         private Context context;
         private List<FileModel> fileList;
+        private List<FileModel> originalList;
 
         public FileAdapter(Context context, List<FileModel> fileList) {
-            super(context, R.layout.list_item_file, fileList);
+            super(context, R.layout.list_item_file, new ArrayList<>(fileList)); // adapter listesi
             this.context = context;
-            this.fileList = fileList;
+            this.fileList = new ArrayList<>(fileList); // güncel liste (filtrelenebilir)
+            this.originalList = new ArrayList<>(fileList); // orijinal kopya
         }
 
         @Override
@@ -300,6 +306,12 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
             TextView pathText = convertView.findViewById(R.id.file_path);
             TextView infoText = convertView.findViewById(R.id.file_info);
             ImageView iconView = convertView.findViewById(R.id.file_icon);
+
+            FileModel fileModel;
+            if(filteredList.size() <= 0)
+                fileModel = fileList.get(position);
+            else
+                fileModel = filteredList.get(position); // ✅ doğru liste
 
             File file = new File(model.getFilePath());
 
@@ -333,6 +345,14 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
             return convertView;
         }
 
+        @Override
+        public int getCount() {
+            if(filteredList.size() <= 0)
+                return fileList.size();
+            else
+                return filteredList.size(); // ✅ doğru liste
+        }
+
         private String getFileExtension(File file) {
             String name = file.getName();
             int lastDot = name.lastIndexOf(".");
@@ -341,6 +361,53 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
             } else {
                 return ""; // uzantı yok
             }
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    List<FileModel> filtered = new ArrayList<>();
+
+                    if (constraint == null || constraint.length() == 0) {
+                        filtered.addAll(fileList);
+                    } else {
+                        String filterPattern = constraint.toString().toLowerCase().trim();
+                        for (FileModel item : fileList) {
+                            Log.d("filterMetot", filterPattern + " - " + new File(item.getFilePath()).getAbsolutePath().toLowerCase());
+                            if (new File(item.getFilePath()).getName().toLowerCase().contains(filterPattern)) {
+                                Log.d("girdi girmedi?", "province girdi");
+                                filtered.add(item);
+                            }
+                            else if (new File(item.getFilePath()).getAbsolutePath().toLowerCase().contains(filterPattern)) {
+                                Log.d("girdi girmedi?", "location girdi");
+                                filtered.add(item);
+                            }/*
+                            else if (new File(item.getFilePath()).get.toLowerCase().contains(filterPattern)) {
+                                filtered.add(item);
+                            }
+                            else if (item.getFormattedDate().toLowerCase().contains(filterPattern)) {
+                                filtered.add(item);
+                            }*/
+                        }
+                    }
+
+                    results.values = filtered;
+                    return results;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    filteredList.clear();
+                    filteredList.addAll((List<FileModel>) results.values);
+                    notifyDataSetChanged();
+                    /*clear(); // adapter'daki listeyi temizle
+                    addAll((List<FileModel>) results.values); // filtrelenen sonuçları ekle
+                    notifyDataSetChanged(); // listeyi yenile*/
+                }
+            };
         }
     }
 
