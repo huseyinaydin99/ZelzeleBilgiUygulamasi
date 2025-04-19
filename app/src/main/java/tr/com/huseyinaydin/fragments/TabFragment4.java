@@ -1,21 +1,21 @@
 package tr.com.huseyinaydin.fragments;
 
+import static androidx.core.content.PermissionChecker.checkSelfPermission;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -31,40 +31,21 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 import tr.com.huseyinaydin.R;
-import tr.com.huseyinaydin.activities.EarthquakeActivity;
-import tr.com.huseyinaydin.constants.URLs;
 import tr.com.huseyinaydin.database.FileDatabaseHelper;
-import tr.com.huseyinaydin.database.FileRepository;
-import tr.com.huseyinaydin.models.Earthquake;
 import tr.com.huseyinaydin.models.FileModel;
+import tr.com.huseyinaydin.utils.DropboxHelper;
 import tr.com.huseyinaydin.utils.EarthquakeExporter;
 import tr.com.huseyinaydin.utils.EarthquakeExporterImpl;
+
 
 public class TabFragment4 extends Fragment implements SearchableFragment {
 
@@ -75,11 +56,15 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
     //private EarthquakeAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private AppCompatImageButton exportButton;
+    private AppCompatImageButton dropBoxCloudBackupButton;
     /*private List<Earthquake> earthquakesBackup;
     private List<Earthquake> filteredList;*/
     private View view;
     private List<FileModel> fileList;
     private List<FileModel> filteredList;
+    private DropboxHelper dropboxHelper;
+
+    private static final int REQUEST_STORAGE_PERMISSION = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -87,9 +72,31 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
 
         AndroidThreeTen.init(view.getContext());
 
+        dropboxHelper = new DropboxHelper(view.getContext());
+
         filteredList = new ArrayList<>();
         //earthquakesBackup = new ArrayList<>();
 
+        dropBoxCloudBackupButton = view.findViewById(R.id.dropBoxCloudBackupButton);
+        dropBoxCloudBackupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                }
+
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    dropboxHelper.backupFiles(fileList);
+                } /*else {
+                    ActivityCompat.requestPermissions(
+                            requireActivity(),
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_STORAGE_PERMISSION
+                    );
+                }*/
+            }
+        });
         // Dışa aktarma düğmesini başlattım
         exportButton = view.findViewById(R.id.exportButton4);
 
@@ -135,6 +142,56 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
 
         refreshData();
         return view;
+    }
+
+    public void openWebPageWithChooser() {
+        String url = "https://www.dropbox.com/developers";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+
+        // Seçim ekranı göster
+        Intent chooser = Intent.createChooser(intent, "Tarayıcı seçin");
+        startActivity(chooser);
+    }
+
+    public void openDropboxDevelopersPage() {
+        String url = "https://www.dropbox.com/developers";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+
+        // Chrome yüklüyse öncelikle Chrome'u kullan
+        if (isChromeInstalled()) {
+            intent.setPackage("com.android.chrome");
+        }
+
+        try {
+            // Fragment'te activity'den başlatıyoruz
+            requireActivity().startActivity(intent);
+        } catch (Exception e) {
+            // Herhangi bir hata durumunda varsayılan tarayıcıya dön
+            intent.setPackage(null);
+            requireActivity().startActivity(intent);
+        }
+    }
+
+    public boolean isChromeInstalled() {
+        try {
+            requireActivity().getPackageManager().getPackageInfo("com.android.chrome", 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // İzin verildi, dosya işlemleri yapılabilir
+            } else {
+                // İzin reddedildi
+            }
+        }
     }
 
     private void refreshData(){
@@ -410,6 +467,8 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
             };
         }
     }
+
+
 
     /*
     public class EarthquakeAdapter extends ArrayAdapter<Earthquake> implements Filterable {

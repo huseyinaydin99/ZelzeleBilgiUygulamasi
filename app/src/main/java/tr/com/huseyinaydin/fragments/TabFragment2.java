@@ -116,26 +116,30 @@ public class TabFragment2 extends Fragment implements SearchableFragment {
                     }
                     if (pdfCheckBox.isChecked()) {
                         selectedFormats += "PDF ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF";
-                        earthquakeExporter.exportToPdf(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".PDF");
+                        String hash1 = UUID.randomUUID().toString().substring(0, 4);
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash1 + ".PDF";
+                        earthquakeExporter.exportToPdf(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" +  new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash1 + ".PDF");
                         fileRepository.insertFilePath(path);
                     }
                     if (htmlCheckBox.isChecked()) {
                         selectedFormats += "HTML ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML";
-                        earthquakeExporter.exportToHtml(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".HTML");
+                        String hash2 = UUID.randomUUID().toString().substring(0, 4);
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()  + "/" +  new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash2 + ".HTML";
+                        earthquakeExporter.exportToHtml(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash2 + ".HTML");
                         fileRepository.insertFilePath(path);
                     }
                     if (textCheckBox.isChecked()) {
                         selectedFormats += "Text ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT";
-                        earthquakeExporter.exportToTxt(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".TXT");
+                        String hash3 = UUID.randomUUID().toString().substring(0, 4);
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash3 + ".TXT";
+                        earthquakeExporter.exportToTxt(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" +  new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash3 + ".TXT");
                         fileRepository.insertFilePath(path);
                     }
                     if (wordCheckBox.isChecked()) {
                         selectedFormats += "Word ";
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX";
-                        earthquakeExporter.exportToWord(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "3 saat 0-3 - " + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + " - " + UUID.randomUUID().toString().substring(0, 8) + ".DOCX");
+                        String hash4 = UUID.randomUUID().toString().substring(0, 4);
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash4 + ".DOCX";
+                        earthquakeExporter.exportToWord(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()  + "/" +  new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash4 + ".DOCX");
                         fileRepository.insertFilePath(path);
                     }
                     // Dosya ekleme
