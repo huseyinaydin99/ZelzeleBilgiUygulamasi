@@ -1,5 +1,6 @@
 package tr.com.huseyinaydin.utils;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,6 +31,7 @@ public class DropboxHelper {
     private DropboxRepository dropboxRepository;
     private String appName;
     private String token;
+    private List<FileModel> fileList;
 
     public DropboxHelper(Context context, String appName, String token) {
         this.context = context;
@@ -42,63 +44,79 @@ public class DropboxHelper {
     }
 
     public void backupFiles(List<FileModel> fileList) {
+        this.fileList = fileList;
         new BackupTask().execute(fileList);
     }
 
-    private class BackupTask extends AsyncTask<List<FileModel>, Void, Boolean> {
+    private class BackupTask extends AsyncTask<List<FileModel>, Integer, Boolean> {
+
+        private ProgressDialog progressDialog;
+        private List<FileModel> fileList;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setTitle("Yedekleme İşlemi");
+            progressDialog.setMessage("Dosyalarınız yedekleniyor...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setCancelable(false);
+            progressDialog.setIndeterminate(false);
+            progressDialog.setMax(100); // artık yüzde bazlı kontrol
+
+            progressDialog.show();
+        }
+
         @Override
         protected Boolean doInBackground(List<FileModel>... lists) {
-            List<FileModel> fileList = lists[0];
+            fileList = lists[0];
             boolean allSuccess = true;
 
-            for (FileModel fileModel : fileList) {
-                /*Uri uri = Uri.parse(fileModel.getFilePath());
-                String realPath = getRealPathFromUri(context, uri);
-                File file = new File(realPath);*/
-                File file = new File(fileModel.getFilePath());
-                Log.e("dosya", file.getAbsolutePath() + " - " + fileModel.getFilePath());
+            int total = fileList.size();
+            int count = 0;
 
-                Log.e("dosya-debug", "Kontrol ediliyor: " + file.getAbsolutePath());
-                Log.e("dosya-debug", "exists: " + file.exists());
-                Log.e("dosya-debug", "canRead: " + file.canRead());
+            for (FileModel fileModel : fileList) {
+                File file = new File(fileModel.getFilePath());
+
                 if (file.exists()) {
-                    //Log.e("dosya", file.getAbsolutePath() + " - " + fileModel.getFilePath());
                     try (InputStream inputStream = new FileInputStream(file)) {
-                        FileMetadata metadata = dbxClient.files().uploadBuilder("/backup/" + file.getName())
+                        dbxClient.files().uploadBuilder("/backup/" + file.getName())
                                 .withMode(WriteMode.OVERWRITE)
                                 .uploadAndFinish(inputStream);
                     } catch (IOException | DbxException e) {
                         e.printStackTrace();
                         allSuccess = false;
                     }
-                }
-                else
+                } else {
                     allSuccess = false;
+                }
+
+                count++;
+                int progress = (int) ((count * 100.0f) / total); // kesin %100
+                publishProgress(progress);
             }
+
             return allSuccess;
         }
 
         @Override
+        protected void onProgressUpdate(Integer... values) {
+            progressDialog.setProgress(values[0]);
+        }
+
+        @Override
         protected void onPostExecute(Boolean success) {
+            progressDialog.setProgress(100);
             if (success) {
-                Toast.makeText(context, "Yedekleme başarılı!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "✅ Yedekleme başarılı!", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(context, "Yedekleme sırasında hata oluştu!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "❌ Yedekleme sırasında hata oluştu!", Toast.LENGTH_LONG).show();
             }
-        }
-
-        public String getRealPathFromUri(Context context, Uri uri) {
-            String[] projection = {MediaStore.Images.Media.DATA};
-            Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-            if (cursor != null) {
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                cursor.moveToFirst();
-                String s = cursor.getString(column_index);
-                cursor.close();
-                return s;
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            return null;
+            progressDialog.dismiss();
         }
-
     }
 }
