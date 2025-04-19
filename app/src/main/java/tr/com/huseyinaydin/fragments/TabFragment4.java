@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -40,7 +42,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import tr.com.huseyinaydin.R;
+import tr.com.huseyinaydin.database.DropboxRepository;
 import tr.com.huseyinaydin.database.FileDatabaseHelper;
+import tr.com.huseyinaydin.models.DropboxModel;
 import tr.com.huseyinaydin.models.FileModel;
 import tr.com.huseyinaydin.utils.DropboxHelper;
 import tr.com.huseyinaydin.utils.EarthquakeExporter;
@@ -72,7 +76,7 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
 
         AndroidThreeTen.init(view.getContext());
 
-        dropboxHelper = new DropboxHelper(view.getContext());
+        //dropboxHelper = new DropboxHelper(view.getContext());
 
         filteredList = new ArrayList<>();
         //earthquakesBackup = new ArrayList<>();
@@ -81,20 +85,23 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
         dropBoxCloudBackupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                DropboxRepository repository = new DropboxRepository(requireContext());
+                if(repository.getAllDropboxAccounts().size() <= 0)
+                    showDropboxDialog(requireContext());
+                else {
+                    String appName = "";
+                    String token = "";
+                    appName = repository.getAllDropboxAccounts().get(0).getAppName();
+                    token = repository.getAllDropboxAccounts().get(0).getAccessToken();
+                    dropboxHelper = new DropboxHelper(requireContext(),appName, token);
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                    }
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        dropboxHelper.backupFiles(fileList);
+                    }
                 }
-
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    dropboxHelper.backupFiles(fileList);
-                } /*else {
-                    ActivityCompat.requestPermissions(
-                            requireActivity(),
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            REQUEST_STORAGE_PERMISSION
-                    );
-                }*/
             }
         });
         // Dışa aktarma düğmesini başlattım
@@ -142,6 +149,64 @@ public class TabFragment4 extends Fragment implements SearchableFragment {
 
         refreshData();
         return view;
+    }
+
+    private void showDropboxDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View view = LayoutInflater.from(context).inflate(R.layout.dropbox_modal, null);
+        builder.setView(view);
+
+        // Dialog boşluğa tıklanınca kapanmasın
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false); // Geri tuşu da kapatmasın istiyorsan bunu açık bırak
+
+        EditText editAppName = view.findViewById(R.id.editAppName);
+        EditText editAccessToken = view.findViewById(R.id.editAccessToken);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+        Button btnSave = view.findViewById(R.id.btnSave);
+
+        DropboxRepository repository = new DropboxRepository(context);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSave.setOnClickListener(v -> {
+            String appName = editAppName.getText().toString().trim();
+            String token = editAccessToken.getText().toString().trim();
+
+            if (appName.isEmpty() || token.isEmpty()) {
+                Toast.makeText(context, "Lütfen tüm alanları doldurun.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Aynı uygulama adına sahip kayıt var mı kontrol et
+            List<DropboxModel> accounts = repository.getAllDropboxAccounts();
+            boolean alreadyExists = false;
+            for (DropboxModel model : accounts) {
+                if (model.getAppName().equalsIgnoreCase(appName)) {
+                    alreadyExists = true;
+                    break;
+                }
+            }
+
+            if (alreadyExists) {
+                Toast.makeText(context, "Bu uygulama adı zaten kayıtlı!", Toast.LENGTH_LONG).show();
+            } else {
+                dropboxHelper = new DropboxHelper(view.getContext(),appName, token);
+                repository.insertDropboxAccount(appName, token);
+                Toast.makeText(context, "Başarıyla kaydedildi.", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                }
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    dropboxHelper.backupFiles(fileList);
+                }
+            }
+        });
+
+        dialog.show();
     }
 
     public void openWebPageWithChooser() {

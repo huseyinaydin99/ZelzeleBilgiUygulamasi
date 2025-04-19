@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tr.com.huseyinaydin.models.FileModel;
+import tr.com.huseyinaydin.models.DropboxModel;
 
 public class FileRepository {
 
@@ -18,6 +19,7 @@ public class FileRepository {
         dbHelper = new FileDatabaseHelper(context);
     }
 
+    // Dosya yollarını ekleme
     public void insertFilePath(String filePath) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -26,6 +28,7 @@ public class FileRepository {
         db.close();
     }
 
+    // Tüm dosya yollarını getirme
     public List<FileModel> getAllFiles() {
         List<FileModel> fileList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
