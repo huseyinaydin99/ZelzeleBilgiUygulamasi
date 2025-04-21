@@ -1,6 +1,7 @@
 package tr.com.huseyinaydin.activities;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -87,6 +88,12 @@ public class EarthquakeActivity extends AppCompatActivity {
                         .replace(R.id.fragment_container, new FileListFragment())
                         .commit();*/
                 viewPager.setCurrentItem(4, false);
+            }
+
+            if (id == R.id.turkeyEarthQuakeMap) {
+                Intent intent = new Intent(this, EarthquakeMapActivity.class);
+                intent.putExtra("hello", "selamlar"); // örnek veri
+                startActivity(intent);
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);

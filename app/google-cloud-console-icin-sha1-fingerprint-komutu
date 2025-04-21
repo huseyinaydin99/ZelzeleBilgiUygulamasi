@@ -1,0 +1,9 @@
+keytool -list -v -keystore C:\Users\Huseyin_Aydin\.android\debug.keystore -alias androiddebugkey -storepass android -keypass android
+
+Sonuçlarda şunu ara:
+Variant: debug
+Config: debug
+Store: ...
+Alias: AndroidDebugKey
+SHA1: A1:B2:C3:D4:...
+İşte o SHA1 satırındaki değer Google Console'daki "Fingerprint" kısmına yazılacak.

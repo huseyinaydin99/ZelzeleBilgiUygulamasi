@@ -56,4 +56,17 @@ dependencies {
 
     implementation 'com.dropbox.core:dropbox-core-sdk:5.4.4'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    // JSON parser (Gson Converter)
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // OkHttp (istek/yanıt logları için isteğe bağlı)
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
+
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.2'
 }
