@@ -17,6 +17,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import tr.com.huseyinaydin.R;
@@ -98,11 +100,48 @@ public class EarthquakeMapActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void showEarthquakeDialog(com.google.android.gms.maps.model.Marker marker) {
+        List<EarthquakeRecord> records = viewModel.getEarthquakes().getValue();
+
+        if (records == null || records.isEmpty()) return;
+
+        EarthquakeRecord selectedQuake = null;
+
+        for (EarthquakeRecord record : records) {
+            if (record.getLocation().equals(marker.getTitle())) {
+                selectedQuake = record;
+                break;
+            }
+        }
+
+        if (selectedQuake == null) return;
+
+        StringBuilder details = new StringBuilder();
+        details.append("📅 Tarih: ").append(formatDate(selectedQuake.getDate())).append("\n")
+                .append("📍 Lokasyon: ").append(selectedQuake.getLocation()).append("\n")
+                .append("💥 Büyüklük: ").append(selectedQuake.getMagnitude()).append("\n")
+                .append("⛏️ Derinlik: ").append(selectedQuake.getDepth()).append(" km\n")
+                .append("🌐 Enlem: ").append(selectedQuake.getLatitude()).append("\n")
+                .append("📏 Boylam: ").append(selectedQuake.getLongitude());
+
         new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle(marker.getTitle())
-                .setMessage(marker.getSnippet())
-                .setCancelable(false) // boşluğa tıklanınca kapanmasın
+                .setTitle("🌍 Deprem Detayları")
+                .setMessage(details.toString())
+                .setCancelable(false)
                 .setPositiveButton("Tamam", (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    private String formatDate(String dateStr) {
+        try {
+            // Verilen tarih formatını çözümle (e.g., 2025-04-21)
+            SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = originalFormat.parse(dateStr);
+
+            // Yeni formatta tarihi al (örneğin: 21 Nisan 2025)
+            SimpleDateFormat newFormat = new SimpleDateFormat("dd MMMM yyyy");
+            return newFormat.format(date);
+        } catch (Exception e) {
+            return dateStr; // Hata durumunda orijinal tarih döner
+        }
     }
 }

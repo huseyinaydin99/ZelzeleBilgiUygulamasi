@@ -6,13 +6,15 @@ public class EarthquakeRecord {
     private double magnitude;
     private double latitude;
     private double longitude;
+    private double depth; // 🆕 Derinlik eklendi
 
-    public EarthquakeRecord(String date, String location, double magnitude, double latitude, double longitude) {
+    public EarthquakeRecord(String date, String location, double magnitude, double latitude, double longitude, double depth) {
         this.date = date;
         this.location = location;
         this.magnitude = magnitude;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.depth = depth;
     }
 
     public EarthquakeRecord() {
@@ -56,5 +58,13 @@ public class EarthquakeRecord {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public double getDepth() {
+        return depth;
+    }
+
+    public void setDepth(double depth) {
+        this.depth = depth;
     }
 }
