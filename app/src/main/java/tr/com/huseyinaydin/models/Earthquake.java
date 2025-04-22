@@ -1,11 +1,12 @@
 package tr.com.huseyinaydin.models;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Earthquake {
+public class Earthquake implements Serializable {
 
     private double magnitude;
     private String type;

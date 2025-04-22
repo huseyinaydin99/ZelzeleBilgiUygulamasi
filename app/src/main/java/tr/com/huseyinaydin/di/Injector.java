@@ -14,14 +14,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Injector {
 
     public static EarthquakeViewModel provideViewModel() {
-        AfadApiService apiService = new Retrofit.Builder()
+        AfadApiService apiService = provideAfadApiService();
+        EarthquakeRepository repository = new EarthquakeRepositoryImpl(apiService);
+        return new EarthquakeViewModel(repository);
+    }
+
+    public static AfadApiService provideAfadApiService(){
+        return new Retrofit.Builder()
                 .baseUrl(getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(AfadApiService.class);
-
-        EarthquakeRepository repository = new EarthquakeRepositoryImpl(apiService);
-
-        return new EarthquakeViewModel(repository);
     }
 }

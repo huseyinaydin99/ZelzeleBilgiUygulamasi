@@ -3,6 +3,7 @@ package tr.com.huseyinaydin.fragments;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Filter;
@@ -48,6 +50,7 @@ import java.util.UUID;
 
 import tr.com.huseyinaydin.R;
 import tr.com.huseyinaydin.activities.EarthquakeActivity;
+import tr.com.huseyinaydin.activities.MapActivity;
 import tr.com.huseyinaydin.constants.URLs;
 import tr.com.huseyinaydin.database.FileRepository;
 import tr.com.huseyinaydin.models.Earthquake;
@@ -457,6 +460,22 @@ public class TabFragment2 extends Fragment implements SearchableFragment {
                     else
                         earthquakesBackup.addAll(earthquakeList);
                     //resultTextView.setText(stringBuilder.toString());
+
+                    earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            Intent intent = new Intent(requireActivity(), MapActivity.class);
+                            if(filteredList.size() > 0){
+                                earthquakesBackup.addAll(filteredList);
+                                intent.putExtra("earthquakeModel", filteredList.get(i)); // Earthquake POJO/model Serializable olmalı
+                            }
+                            else{
+                                earthquakesBackup.addAll(earthquakeList);
+                                intent.putExtra("earthquakeModel", earthquakeList.get(i)); // Earthquake POJO/model Serializable olmalı
+                            }
+                            startActivity(intent);
+                        }
+                    });
                 } catch (Exception e) {
                     Log.e("MainActivity", "Error parsing JSON", e);
                     //resultTextView.setText("Deprem verileri işlenirken hata oluştu: " + e.getMessage());

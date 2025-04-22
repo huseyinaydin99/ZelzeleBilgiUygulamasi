@@ -1,6 +1,7 @@
 package tr.com.huseyinaydin.presentation.viewmodel;
 
 import static tr.com.huseyinaydin.constants.URLs.getBaseUrl;
+import static tr.com.huseyinaydin.di.Injector.provideAfadApiService;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -35,11 +36,7 @@ public class EarthquakeViewModel extends ViewModel {
 
     // Parametresiz constructor ekleyin
     public EarthquakeViewModel() {
-        this.repository = new EarthquakeRepositoryImpl(new Retrofit.Builder()
-                .baseUrl(getBaseUrl())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(AfadApiService.class));  // veya başka bir methodla repository'yi başlatabilirsiniz
+        this.repository = new EarthquakeRepositoryImpl(provideAfadApiService());  // veya başka bir methodla repository'yi başlatabilirsiniz
     }
 
     public LiveData<List<EarthquakeRecord>> getEarthquakes() {
