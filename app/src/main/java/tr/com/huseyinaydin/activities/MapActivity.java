@@ -28,6 +28,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import tr.com.huseyinaydin.R;
@@ -126,6 +128,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(quakeLatLng, 7));
 
+            mMap.setOnMarkerClickListener(marker -> {
+                if (marker.getTitle() != null && marker.getTitle().equals("Deprem Yeri")) {
+                    showEarthquakeDialog();
+                    return true; // varsayılan behavior'ı engelle
+                }
+                return false;
+            });
+
             evaluateRisk(distance[0], earthquake);
         } else {
             // Sadece deprem yeri gösterilecek
@@ -172,4 +182,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Toast.makeText(this, "Konum izni verilmedi, sadece deprem yeri gösterilecek ben ne yapıyım verseydin (-:", Toast.LENGTH_LONG).show();
         }
     }
+
+    private void showEarthquakeDialog() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("🌍 Deprem Bilgileri");
+
+        StringBuilder message = new StringBuilder();
+        /*message.append("📍 Konum: ").append(earthquake.getLocation()).append("\n");
+        message.append("📅 Tarih: ").append(earthquake.getFormattedDate()).append("\n");
+        message.append("📏 Derinlik: ").append(earthquake.getDepth()).append(" km\n");
+        message.append("💥 Büyüklük: ").append(earthquake.getMagnitude()).append(" M\n");
+        message.append("🆔 ID: ").append(earthquake.getId()).append("\n");
+        message.append("🔗 Kaynak: ").append(earthquake.getSource());*/
+
+        message.append("📅 Tarih: ").append(earthquake.getFormattedDate()).append("\n")
+                .append("📍 Lokasyon: ").append(earthquake.getLocation()).append("\n")
+                .append("💥 Büyüklük: ").append(earthquake.getMagnitude()).append("\n")
+                .append("⛏️ Derinlik: ").append(earthquake.getDepth()).append(" km\n")
+                .append("🌐 Enlem: ").append(earthquake.getLatitude()).append("\n")
+                .append("📏 Boylam: ").append(earthquake.getLongitude());
+
+        builder.setMessage(message.toString());
+
+        builder.setCancelable(false); // boşluğa tıklanmasın
+        builder.setPositiveButton("Kapat", (dialog, which) -> dialog.dismiss());
+
+        builder.show();
+    }
+
+    /*private String formatDate(String dateStr) {
+        try {
+            // Verilen tarih formatını çözümle (e.g., 2025-04-21)
+            SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = originalFormat.parse(dateStr);
+
+            // Yeni formatta tarihi al (örneğin: 21 Nisan 2025)
+            SimpleDateFormat newFormat = new SimpleDateFormat("dd MMMM yyyy");
+            return newFormat.format(date);
+        } catch (Exception e) {
+            return dateStr; // Hata durumunda orijinal tarih döner
+        }
+    }*/
 }
