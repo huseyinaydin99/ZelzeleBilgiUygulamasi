@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -59,6 +60,60 @@ public class EarthquakeViewModel extends ViewModel {
             @Override
             public void onFailure(Call<List<EarthquakeRecord>> call, Throwable t) {
                 Log.e("AFAD", "Failed: " + t.getMessage());
+            }
+        });
+    }
+
+    public void fetchEarthquakes(int dayCount, double minMagnitude) {
+        String startDate = DateUtil.getDateBefore(dayCount);
+        String endDate = DateUtil.getTodayDate();
+
+        repository.getEarthquakes(startDate, endDate, new Callback<List<EarthquakeRecord>>() {
+            @Override
+            public void onResponse(Call<List<EarthquakeRecord>> call, Response<List<EarthquakeRecord>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Şiddet filtresi uygula
+                    List<EarthquakeRecord> filteredList = new ArrayList<>();
+                    for (EarthquakeRecord record : response.body()) {
+                        if (record.getMagnitude() >= minMagnitude) {
+                            filteredList.add(record);
+                        }
+                    }
+                    earthquakes.postValue(filteredList);
+                    Log.d("Veri", "--: " + filteredList);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EarthquakeRecord>> call, Throwable t) {
+                Log.e("AFAD", "Failed: " + t.getMessage());
+            }
+        });
+    }
+
+    public void fetchEarthquakes(int dayCount, double minMagnitude, double maxMagnitude) {
+        String startDate = DateUtil.getDateBefore(dayCount);
+        String endDate = DateUtil.getTodayDate();
+
+        repository.getEarthquakes(startDate, endDate, new Callback<List<EarthquakeRecord>>() {
+            @Override
+            public void onResponse(Call<List<EarthquakeRecord>> call, Response<List<EarthquakeRecord>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<EarthquakeRecord> filteredList = new ArrayList<>();
+                    for (EarthquakeRecord record : response.body()) {
+                        double magnitude = record.getMagnitude();
+                        if (magnitude >= minMagnitude && magnitude <= maxMagnitude) {
+                            filteredList.add(record);
+                        }
+                    }
+                    earthquakes.postValue(filteredList);
+                    Log.d("Depremler", "Filtrelenen veri sayısı: " + filteredList.size());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<EarthquakeRecord>> call, Throwable t) {
+                Log.e("AFAD", "Veri çekme hatası: " + t.getMessage());
             }
         });
     }

@@ -7,6 +7,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- Şiddet Spinner'ı -->
+    <Spinner
+        android:id="@+id/spinnerMagnitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:spinnerMode="dropdown" />
+
     <!-- Butonlar -->
     <LinearLayout
         android:layout_width="match_parent"
