@@ -17,11 +17,12 @@ public class Earthquake implements Serializable {
     private String depth;
     private String latitude;
     private String longitude;
+    private Date date;
 
     // Constructor
     public Earthquake(double magnitude, String type, String location, String province,
                       String district, String formattedDate, String depth,
-                      String latitude, String longitude) {
+                      String latitude, String longitude) throws ParseException {
         this.magnitude = magnitude;
         this.type = type;
         this.location = location;
@@ -31,6 +32,10 @@ public class Earthquake implements Serializable {
         this.depth = depth;
         this.latitude = latitude;
         this.longitude = longitude;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
+        Date parsedDate = sdf.parse(formattedDate);
+        setDate(parsedDate);
     }
 
     // Getters and Setters
@@ -105,12 +110,26 @@ public class Earthquake implements Serializable {
     // Tarih formatlama
     public String getFormattedDate() {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
             Date parsedDate = sdf.parse(formattedDate);
+            setDate(parsedDate);
             return new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(parsedDate);
         } catch (ParseException e) {
+            e.printStackTrace();
             return formattedDate;
         }
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getStringDate(){
+        return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()).format(getDate());
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     @Override

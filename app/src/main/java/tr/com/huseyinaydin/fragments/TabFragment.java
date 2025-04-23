@@ -57,6 +57,7 @@ import tr.com.huseyinaydin.models.Earthquake;
 import tr.com.huseyinaydin.models.FileModel;
 import tr.com.huseyinaydin.utils.EarthquakeExporter;
 import tr.com.huseyinaydin.utils.EarthquakeExporterImpl;
+import tr.com.huseyinaydin.utils.EarthquakeSorter;
 
 public class TabFragment extends Fragment implements SearchableFragment {
 
@@ -458,7 +459,9 @@ public class TabFragment extends Fragment implements SearchableFragment {
                     //swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
                     //ListView listView = view.findViewById(R.id.list_view);
                     // Adapter oluştur ve listeye bağla
+                    EarthquakeSorter.sortByDateDescending(earthquakeList);
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
+
                     earthquakeListView.setAdapter(adapter);
                     earthquakesBackup.clear();
                     if(filteredList.size() > 0)
