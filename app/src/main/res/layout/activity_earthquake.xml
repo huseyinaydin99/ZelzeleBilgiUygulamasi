@@ -18,45 +18,59 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="40dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:background="@color/white"
-            android:elevation="4dp"
+            android:elevation="0dp"
+            android:paddingStart="1dp"
+            android:paddingEnd="1dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:buttonGravity="top"
+            app:navigationIcon="@drawable/menu_burger"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:title=""
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
+            app:title="">
 
+            <!-- SearchView -->
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/search_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="false"
-                android:queryHint="Ara..."
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="1dp"
+                android:layout_marginBottom="1dp"
                 android:background="@drawable/searchview_background"
+                android:focusable="false"
+                android:padding="0dp"
+                android:queryHint="Ara..."
+                android:textColorHint="@android:color/darker_gray"
+                app:closeIcon="@android:drawable/ic_menu_close_clear_cancel"
                 app:iconifiedByDefault="false"
                 app:queryBackground="@android:color/transparent"
                 app:submitBackground="@android:color/transparent" />
+
         </androidx.appcompat.widget.Toolbar>
 
         <!-- Tab içerikleri -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <!-- ViewPager için tablar -->
+        <!-- Tablar -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:background="?attr/colorPrimary"
-            app:tabIconTint="@android:color/background_dark"
-            app:tabIndicatorColor="@android:color/background_dark"
-            app:tabSelectedTextColor="@android:color/background_dark"
-            app:tabTextColor="@android:color/background_dark" />
+            android:background="@color/white"
+            app:tabGravity="fill"
+            app:tabMode="fixed"
+            app:tabIndicatorColor="@color/black"
+            app:tabSelectedTextColor="@color/black"
+            app:tabTextColor="@color/black"
+            app:tabInlineLabel="true" />
+
     </LinearLayout>
 
     <!-- Navigasyon Drawer (Sol menü) -->

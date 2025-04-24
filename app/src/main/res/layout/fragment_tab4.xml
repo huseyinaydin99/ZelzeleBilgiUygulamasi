@@ -27,8 +27,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:src="@drawable/refresh"
-            android:contentDescription="Dışa Aktar"
-            android:tint="@android:color/white" />
+            android:contentDescription="Dışa Aktar" />
 
         <!-- Google Drive Backup Button (new) -->
         <androidx.appcompat.widget.AppCompatImageButton
@@ -39,8 +38,7 @@
             android:layout_marginBottom="88dp"
             android:layout_marginEnd="16dp"
             android:src="@drawable/backup"
-            android:contentDescription="Google Drive'a Yedekle"
-            android:tint="@android:color/white" />
+            android:contentDescription="Google Drive'a Yedekle" />
     </FrameLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

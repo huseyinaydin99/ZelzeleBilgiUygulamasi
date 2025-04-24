@@ -184,7 +184,7 @@ public class TabFragment3 extends Fragment implements SearchableFragment {
                     for(int i = 0; i < files.size(); i++){
                         Log.d("dosya", files.get(i).getFilePath());
                     }
-                    Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(view.getContext(), "Dosyalar kaydedildi!", Toast.LENGTH_SHORT).show();
                 });
 
                 builder.setNegativeButton("İptal", (dialog, which) -> {

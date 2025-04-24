@@ -137,7 +137,7 @@ public class EarthquakeActivity extends AppCompatActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_1);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.menu_burger);
         }
 
         fragmentManager = getSupportFragmentManager();
@@ -188,13 +188,13 @@ public class EarthquakeActivity extends AppCompatActivity {
                 (tab, position) -> {
                     switch (position) {
                         case 0:
-                            tab.setText("Ana Sayfa");
+                            tab.setText("Hafif");
                             break;
                         case 1:
-                            tab.setText("Ayarlar");
+                            tab.setText("Orta");
                             break;
                         case 2:
-                            tab.setText("Abc");
+                            tab.setText("Şiddetli");
                             break;
                     }
                 }).attach();
@@ -204,9 +204,9 @@ public class EarthquakeActivity extends AppCompatActivity {
         }
 
         // Tab ikonlarını ayarla
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_home);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_favorite);
-        tabLayout.getTabAt(2).setIcon(R.drawable.ic_search);
+        tabLayout.getTabAt(0).setIcon(R.drawable.deprem4);
+        tabLayout.getTabAt(1).setIcon(R.drawable.deprem2);
+        tabLayout.getTabAt(2).setIcon(R.drawable.deprem3);
 
         // Drawer Listener ekleme
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {

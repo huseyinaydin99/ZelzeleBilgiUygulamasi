@@ -123,7 +123,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
             @Override
             public void onClick(View view) {
                 // Dışa aktarım işlemleri
-                Toast.makeText(view.getContext(), "Dışa aktarım butonu tıklandı!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(view.getContext(), "Dışa aktarım butonu tıklandı!", Toast.LENGTH_SHORT).show();
                 // Bir iletişim kutusu oluşturucu oluşturun
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                 builder.setTitle("Dışa Aktarım İçin Dosya Formatı Seç");
@@ -182,7 +182,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
                         earthquakeExporter.exportToWord(earthquakesBackup, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()  + "/" +  new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + "_" + hash4 + ".DOCX");
                         fileRepository.insertFilePath(path);
                     }
-                    Toast.makeText(view.getContext(), selectedFormats, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(view.getContext(), "Dosyalar kaydedildi!", Toast.LENGTH_SHORT).show();
 
                     // Dosya ekleme
                     //fileRepository.insertFilePath("/storage/emulated/0/Download/dosya1.txt");

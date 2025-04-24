@@ -13,7 +13,7 @@ import tr.com.huseyinaydin.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PROGRESS_DURATION_MS = 4000; // 4 saniye
+    private static final int PROGRESS_DURATION_MS = 1600; // 4 saniye
     private ActivityMainBinding binding;
     private Handler progressHandler = new Handler();
 
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(() -> {
             startActivity(new Intent(this, EarthquakeActivity.class));
             finish();
-        }, 5500);
+        }, 1800);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             binding.progressBar.setProgress(100, true);
