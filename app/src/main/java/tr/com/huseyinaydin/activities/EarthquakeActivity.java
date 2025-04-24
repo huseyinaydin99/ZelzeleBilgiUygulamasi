@@ -1,16 +1,33 @@
 package tr.com.huseyinaydin.activities;
 
+import static androidx.core.app.ServiceCompat.START_STICKY;
+import static androidx.core.app.ServiceCompat.startForeground;
+
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
+import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +48,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -45,6 +63,7 @@ import tr.com.huseyinaydin.fragments.TabFragment;
 import tr.com.huseyinaydin.fragments.TabFragment2;
 import tr.com.huseyinaydin.fragments.TabFragment3;
 import tr.com.huseyinaydin.fragments.TabFragment4;
+import tr.com.huseyinaydin.utils.NotificationUtils;
 
 public class EarthquakeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
@@ -56,6 +75,56 @@ public class EarthquakeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_earthquake);
+
+        // Bildirim Kanalı (Android 8.0 ve sonrası için gereklidir)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Ciddi Kanal";
+            String description = "Ciddi ve önemli bildirimler için kanal";
+            int importance = NotificationManager.IMPORTANCE_HIGH;  // Yüksek öncelik ve sesli bildirim
+            NotificationChannel channel = new NotificationChannel("my_channel_01", name, importance);
+            channel.setDescription(description);
+
+            // Kanalı oluştur
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        // Ciddi ve profesyonel bir stil eklemek için BigTextStyle kullanma
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle()
+                .bigText("Bu bildirim, ciddi bir uyarı içeriyor ve genellikle daha uzun metinler ile profesyonel bir mesaj sunmak için kullanılır. Örneğin, önemli bir durumun bildirimi yapılabilir.")
+                .setBigContentTitle("Önemli Bildirim Başlığı")  // Büyük içerik başlığı
+                .setSummaryText("Bu önemli bir mesajdır.");  // Özet metni
+
+        // Bildirim oluşturma
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "my_channel_01")
+                .setSmallIcon(R.drawable.sismograf)  // Bildirim ikonu
+                .setContentTitle("Ciddi Bildirim")            // Başlık
+                .setContentText("Bu bildirim, ciddi bir uyarı içeriyor.")  // Kısa içerik
+                .setPriority(NotificationCompat.PRIORITY_HIGH)  // Yüksek öncelik
+                .setDefaults(Notification.DEFAULT_SOUND)       // Bildirim sesi ekler
+                .setAutoCancel(true)  // Tıklanıldığında bildirim kaybolur
+                .setStyle(bigTextStyle)  // BigTextStyle ile metni genişletir
+                .setColor(getResources().getColor(R.color.colorPrimary))  // Ciddi bir renk tonu
+                .setVibrate(new long[] { 0, 500, 1000 }); // Titreşim ekleyebiliriz (isteğe bağlı)
+
+        // Bildirim manager'ını al
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        // Bildirimi göster
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        }
+        notificationManager.notify(1, builder.build());
+
+        // Bildirimin 4 saniye sonra kaybolmasını sağla
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Bildirimi iptal et
+                notificationManager.cancel(1);
+            }
+        }, 4000);  // 4000 ms = 4 saniye sonra bildirim kaybolur
+        Snackbar.make(findViewById(android.R.id.content), "Bildirim içeriği", Snackbar.LENGTH_SHORT)
+                .show();
 
         viewPager = findViewById(R.id.view_pager);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -78,7 +147,7 @@ public class EarthquakeActivity extends AppCompatActivity {
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(item -> {
             // Menü öğeleri tıklama işlemleri
-            Toast.makeText(getApplicationContext(), "tıklandı", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "tıklandı", Toast.LENGTH_SHORT).show();
             drawerLayout.closeDrawers();
 
             int id = item.getItemId();
@@ -290,5 +359,4 @@ public class EarthquakeActivity extends AppCompatActivity {
             return fragmentList.size();
         }
     }
-
 }

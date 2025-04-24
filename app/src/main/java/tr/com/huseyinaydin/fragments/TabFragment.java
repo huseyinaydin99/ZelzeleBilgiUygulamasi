@@ -1,12 +1,17 @@
 package tr.com.huseyinaydin.fragments;
 
+import static tr.com.huseyinaydin.fragments.TabFragment3.isPlaying;
+import static tr.com.huseyinaydin.fragments.TabFragment3.mediaPlayer;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.GradientDrawable;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -67,12 +72,41 @@ public class TabFragment extends Fragment implements SearchableFragment {
     private List<Earthquake> earthquakesBackup;
     private List<Earthquake> filteredList;
     private ListView earthquakeListView;
+    //private MediaPlayer mediaPlayer;
+    //private boolean isPlaying = false; // Takip için flag
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tab, container, false);
 
         AndroidThreeTen.init(view.getContext());
+
+        AppCompatImageButton whistleButton = view.findViewById(R.id.whistleButton);
+
+        whistleButton.setOnClickListener(v -> {
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer.create(getContext(), R.raw.whistle_sound);
+                mediaPlayer.setLooping(true); // Sürekli çalsın istiyorsan true
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    if (!isPlaying) {
+                        mediaPlayer.start();
+                        mediaPlayer.setVolume(1.0f, 1.0f); // Son ses
+                        isPlaying = true;
+                        Toast.makeText(getContext(), "Düdük Çalıyor!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        mediaPlayer.pause();
+                        mediaPlayer.seekTo(0); // Baştan başlamak için
+                        isPlaying = false;
+                        Toast.makeText(getContext(), "Düdük Durduruldu", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), "Hata: Düdük çalamadı", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         filteredList = new ArrayList<>();
         earthquakesBackup = new ArrayList<>();
@@ -203,6 +237,15 @@ public class TabFragment extends Fragment implements SearchableFragment {
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
