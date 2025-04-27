@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-04-24T15:40:25.985332400Z">
+        <DropdownSelection timestamp="2025-04-27T19:25:55.220345500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Huseyin_Aydin\.android\avd\Minik_Telefon.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R68W6000JFN" />
             </handle>
           </Target>
         </DropdownSelection>

@@ -5,6 +5,7 @@ import static tr.com.huseyinaydin.fragments.TabFragment3.mediaPlayer;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -72,6 +73,7 @@ public class TabFragment extends Fragment implements SearchableFragment {
     private List<Earthquake> earthquakesBackup;
     private List<Earthquake> filteredList;
     private ListView earthquakeListView;
+    private List<Earthquake> earthquakes;
     //private MediaPlayer mediaPlayer;
     //private boolean isPlaying = false; // Takip için flag
 
@@ -208,12 +210,20 @@ public class TabFragment extends Fragment implements SearchableFragment {
         });
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime threeHoursAgo = now.minusHours(3);
+        LocalDateTime oneMonthsDay = now.minusDays(7);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-        String start = threeHoursAgo.format(formatter);
+        String start = oneMonthsDay.format(formatter);
         String end = now.format(formatter);
-        new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+
+        earthquakes = new ArrayList<>();
+        if (earthquakes.isEmpty()) {
+            new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+        } else {
+            // Veri zaten var, sadece adapter'a set et
+            adapter = new EarthquakeAdapter(view.getContext(), earthquakes);
+            earthquakeListView.setAdapter(adapter);
+        }
 
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         // SwipeRefreshLayout'ı dinleyelim
@@ -231,12 +241,18 @@ public class TabFragment extends Fragment implements SearchableFragment {
         });
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            Toast.makeText(view.getContext(), "Veriler yenilendi!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(view.getContext(), "Veriler yenileniyor...", Toast.LENGTH_SHORT).show();
             // Yenileme işlemini burada yap
             new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -260,13 +276,13 @@ public class TabFragment extends Fragment implements SearchableFragment {
     public class EarthquakeAdapter extends ArrayAdapter<Earthquake> implements Filterable {
 
         private Context context;
-        private List<Earthquake> earthquakes;
+
         private List<Earthquake> originalList;
 
-        public EarthquakeAdapter(Context context, List<Earthquake> earthquakes) {
+        public EarthquakeAdapter(Context context, List<Earthquake> earthquakeList) {
             super(context, R.layout.list_item_earthquake, earthquakes);
             this.context = context;
-            this.earthquakes = earthquakes;
+            earthquakes = earthquakeList;
             //filteredList = new ArrayList<>();
             originalList = new ArrayList<>();
         }
@@ -395,10 +411,21 @@ public class TabFragment extends Fragment implements SearchableFragment {
     private class FetchEarthquakeData extends AsyncTask<String, Void, String> {
         private View view;
         private List<Earthquake> earthquakeList;
+        private ProgressDialog progressDialog; // 🔵 MODAL
 
         public FetchEarthquakeData(View view) {
             earthquakeList = new ArrayList<>();
             this.view = view;
+        }
+
+        @Override
+        protected void onPreExecute() { // 🔵 MODAL
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(view.getContext());
+            progressDialog.setMessage("AFAD'dan veriler yükleniyor sabret...");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false); // Geri tuşu ve boşluk kapatmasın
+            progressDialog.show();
         }
 
         @Override
@@ -537,6 +564,10 @@ public class TabFragment extends Fragment implements SearchableFragment {
             }
             // 🔽 Bu satır ile yenileme spinner'ını durduruyorum!
             swipeRefreshLayout.setRefreshing(false);
+
+            if (progressDialog != null && progressDialog.isShowing()) { // 🔵 MODAL
+                progressDialog.dismiss();
+            }
         }
     }
 }
