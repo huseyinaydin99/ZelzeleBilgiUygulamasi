@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -28,9 +29,11 @@ import androidx.core.view.GravityCompat;
 
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import androidx.appcompat.widget.SearchView;
 
@@ -70,6 +73,7 @@ public class EarthquakeActivity extends AppCompatActivity {
     private SearchView searchView;
     private ViewPager2 viewPager;
     private FragmentManager fragmentManager;
+    private int lastPosition = 0; // en son girilen fragment pozisyonu
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +185,16 @@ public class EarthquakeActivity extends AppCompatActivity {
 
         MyPagerAdapter adapter = new MyPagerAdapter(this, fragments);
         viewPager.setAdapter(adapter);
+        viewPager.setUserInputEnabled(false);
+
+        // sayfa değişince son pozisyonu güncelle
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                if(position != 3)
+                    lastPosition = position;
+            }
+        });
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         //tabLayout.setupWithViewPager(viewPager);
@@ -282,6 +296,15 @@ public class EarthquakeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (viewPager.getCurrentItem() == 3) {
+            viewPager.setCurrentItem(lastPosition);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Sol üst menü butonu kontrolü (android.R.id.home)
         //Toast.makeText(getApplicationContext(), "tıklandı", Toast.LENGTH_SHORT).show();
@@ -359,4 +382,31 @@ public class EarthquakeActivity extends AppCompatActivity {
             return fragmentList.size();
         }
     }
+
+    /*public class NoSwipeViewPager extends ViewPager2 {
+
+        public NoSwipeViewPager(@NonNull Context context) {
+            super(context);
+            init();
+        }
+
+        public NoSwipeViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        private void init() {
+            setUserInputEnabled(false); // Bu swipe hareketini tamamen kapatır.
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return false; // Swipe dokunuşlarını da yok say
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(MotionEvent event) {
+            return false; // Swipe dokunuşlarını da yok say
+        }
+    }*/
 }
