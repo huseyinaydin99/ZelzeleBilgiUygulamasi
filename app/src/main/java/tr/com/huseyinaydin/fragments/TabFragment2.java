@@ -1,7 +1,7 @@
 package tr.com.huseyinaydin.fragments;
 
-import static tr.com.huseyinaydin.fragments.TabFragment3.isPlaying;
-import static tr.com.huseyinaydin.fragments.TabFragment3.mediaPlayer;
+import static tr.com.huseyinaydin.utils.MediaPlayer.isPlaying;
+import static tr.com.huseyinaydin.utils.MediaPlayer.mediaPlayer;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -28,6 +28,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -206,20 +208,8 @@ public class TabFragment2 extends Fragment implements SearchableFragment {
             }
         });
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneMonthsDay = now.minusDays(7);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        //veri çekme eskiden buradaydı!
 
-        String start = oneMonthsDay.format(formatter);
-        String end = now.format(formatter);
-        earthquakes = new ArrayList<>();
-        if (earthquakes.isEmpty()) {
-            new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=3&maxmag=5");
-        } else {
-            // Veri zaten var, sadece adapter'a set et
-            adapter = new EarthquakeAdapter(view.getContext(), earthquakes);
-            earthquakeListView.setAdapter(adapter);
-        }
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout2);
         // SwipeRefreshLayout'ı dinleyelim
         /*swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -238,9 +228,51 @@ public class TabFragment2 extends Fragment implements SearchableFragment {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             Toast.makeText(view.getContext(), "Veriler yenileniyor...", Toast.LENGTH_SHORT).show();
             // Yenileme işlemini burada yap
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime oneMonthsDay = now.minusDays(7);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+            String start = oneMonthsDay.format(formatter);
+            String end = now.format(formatter);
+            new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=0&maxmag=3");
+
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneMonthsDay = now.minusDays(7);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+        String start = oneMonthsDay.format(formatter);
+        String end = now.format(formatter);
+
+        earthquakes = new ArrayList<>();
+        if (earthquakes.size() <= 0) {
+            System.out.println("!çalıştı!" + String.valueOf(earthquakes.size()));
+            Log.d("!çalıştı!", String.valueOf(earthquakes.size()));
+            new FetchEarthquakeData(view).execute(URLs.getLastOneHourAfad() + "start=" + start + "&end=" + end + "&minmag=3&maxmag=5");
+        } else {
+            // Veri zaten var, sadece adapter'a set et
+            adapter = new EarthquakeAdapter(view.getContext(), earthquakes);
+            earthquakeListView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            earthquakeListView.getParent().requestLayout();
+            earthquakeListView.invalidate();
+            System.out.println("!veri zaten var!" + String.valueOf(earthquakes.size()));
+            Log.d("!veri zaten var!", String.valueOf(earthquakes.size()));
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -262,7 +294,6 @@ public class TabFragment2 extends Fragment implements SearchableFragment {
     }
 
     public class EarthquakeAdapter extends ArrayAdapter<Earthquake> implements Filterable {
-
         private Context context;
         private List<Earthquake> originalList;
 
@@ -518,6 +549,11 @@ public class TabFragment2 extends Fragment implements SearchableFragment {
                     adapter = new EarthquakeAdapter(view.getContext(), earthquakeList);
 
                     earthquakeListView.setAdapter(adapter);
+
+                    adapter.notifyDataSetChanged();
+                    earthquakeListView.getParent().requestLayout();
+                    earthquakeListView.invalidate();
+
                     earthquakesBackup.clear();
                     if(filteredList.size() > 0)
                         earthquakesBackup.addAll(filteredList);
