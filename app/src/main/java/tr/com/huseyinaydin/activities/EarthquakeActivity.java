@@ -61,12 +61,17 @@ import java.util.List;
 import java.util.Map;
 
 import tr.com.huseyinaydin.R;
+import tr.com.huseyinaydin.activities.worker.EarthquakeWorker;
 import tr.com.huseyinaydin.fragments.SearchableFragment;
 import tr.com.huseyinaydin.fragments.TabFragment;
 import tr.com.huseyinaydin.fragments.TabFragment2;
 import tr.com.huseyinaydin.fragments.TabFragment3;
 import tr.com.huseyinaydin.fragments.TabFragment4;
-import tr.com.huseyinaydin.utils.NotificationUtils;
+
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+import java.util.concurrent.TimeUnit;
 
 public class EarthquakeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
@@ -80,8 +85,14 @@ public class EarthquakeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_earthquake);
 
+        WorkRequest earthquakeWorkRequest = new OneTimeWorkRequest.Builder(EarthquakeWorker.class)
+                .setInitialDelay(20, TimeUnit.SECONDS)
+                .build();
+
+        WorkManager.getInstance(this).enqueue(earthquakeWorkRequest);
+
         // Bildirim Kanalı (Android 8.0 ve sonrası için gereklidir)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Ciddi Kanal";
             String description = "Ciddi ve önemli bildirimler için kanal";
             int importance = NotificationManager.IMPORTANCE_HIGH;  // Yüksek öncelik ve sesli bildirim
@@ -92,7 +103,6 @@ public class EarthquakeActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-
         // Ciddi ve profesyonel bir stil eklemek için BigTextStyle kullanma
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle()
                 .bigText("Bu bildirim, ciddi bir uyarı içeriyor ve genellikle daha uzun metinler ile profesyonel bir mesaj sunmak için kullanılır. Örneğin, önemli bir durumun bildirimi yapılabilir.")
@@ -129,6 +139,7 @@ public class EarthquakeActivity extends AppCompatActivity {
         }, 4000);  // 4000 ms = 4 saniye sonra bildirim kaybolur
         Snackbar.make(findViewById(android.R.id.content), "Bildirim içeriği", Snackbar.LENGTH_SHORT)
                 .show();
+         */
 
         viewPager = findViewById(R.id.view_pager);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
